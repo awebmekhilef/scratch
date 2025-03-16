@@ -12,8 +12,8 @@ class User(UserMixin, db.Model):
     email: Mapped[str] = mapped_column(String(128), unique=True, index=True)
     username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     password_hash: Mapped[Optional[str]] = mapped_column(String(256))
-    about: Mapped[Optional[str]] = mapped_column(String(1000))
-    website: Mapped[Optional[str]] = mapped_column(String(256))
+    website: Mapped[Optional[str]] = mapped_column(String(128))
+    about: Mapped[Optional[str]] = mapped_column(String(5000))
 
     games: WriteOnlyMapped['Game'] = relationship(back_populates='creator')
 
@@ -36,6 +36,7 @@ class Game(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(128))
     created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)
 
     creator: Mapped[User] = relationship(back_populates='games')
