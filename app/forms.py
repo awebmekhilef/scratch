@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SubmitField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length, URL
 from app import db
 from app.models import User
 
@@ -28,3 +28,9 @@ class RegisterForm(FlaskForm):
         user = db.session.scalar(db.select(User).where(User.email == email.data))
         if user:
             raise ValidationError('Email already exists')
+
+
+class ProfileSettingsForm(FlaskForm):
+    website = StringField('Website', validators=[URL()])
+    about = TextAreaField('About', validators=[Length(min=0, max=1000)])
+    submit = SubmitField('Save')

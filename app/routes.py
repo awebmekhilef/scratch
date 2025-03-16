@@ -1,8 +1,8 @@
 from urllib.parse import urlsplit
 from flask import render_template, redirect, flash, url_for, request
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
-from app.forms import LoginForm, RegisterForm
+from app.forms import LoginForm, RegisterForm, ProfileSettingsForm
 from app.models import User
 
 
@@ -49,3 +49,25 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/user/<username>')
+def user(username):
+    user = db.first_or_404(db.select(User).where(User.username == username))
+    return render_template('user.html', user=user)
+
+
+@app.route('/settings', methods=['GET','POST'])
+@login_required
+def settings():
+    form = ProfileSettingsForm()
+    if form.validate_on_submit():
+        current_user.website = form.website.data
+        current_user.about = form.about.data
+        db.session.commit()
+        flash('Your changes have been saved')
+        return redirect(url_for('settings'))
+    elif request.method == 'GET':
+        form.website.data = current_user.website
+        form.about.data = current_user.about
+    return render_template('settings.html', form=form)

@@ -9,9 +9,11 @@ from app import db, login
 
 class User(UserMixin, db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(128), unique=True, index=True)
     username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     password_hash: Mapped[Optional[str]] = mapped_column(String(256))
+    about: Mapped[Optional[str]] = mapped_column(String(1000))
+    website: Mapped[Optional[str]] = mapped_column(String(256))
 
     games: WriteOnlyMapped['Game'] = relationship(back_populates='creator')
 
