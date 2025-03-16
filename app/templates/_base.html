@@ -6,17 +6,21 @@
     <body>
         <div>
             Scratch:
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('login') }}">Log in</a>
+            <a href="{{ url_for("index") }}">Home</a>
+            {% if current_user.is_anonymous %}
+                <a href="{{ url_for("login") }}">Log in</a>
+            {% else %}
+                <a href="{{ url_for("logout") }}">Log out</a>
+            {% endif %}
         </div>
         <hr>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
-            <ul>
-                {% for msg in messages %}
-                    <li>{{ msg }}</li>
-                {% endfor %}
-            </ul>
+                <ul>
+                    {% for msg in messages %}
+                        <li>{{ msg }}</li>
+                    {% endfor %}
+                </ul>
             {% endif %}
         {% endwith %}
         {% block content %}{% endblock %}
