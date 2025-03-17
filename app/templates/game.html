@@ -1,0 +1,11 @@
+{% extends "_base.html" %}
+
+{% block content %}
+    <h1>{{ game.title }}</h1>
+    {% if game.tagline %}<p>{{ game.tagline }}</p>{% endif %}
+    {% if game.description %}<p>{{ game.description }}</p>{% endif %}
+    {% if game.creator == current_user %}
+        <p><a href="{{ url_for('index') }}">Edit game</a></p>
+    {% endif %}
+    <p><a href="{{ url_for('user', username=game.creator.username) }}">View creator</a></p>
+{% endblock %}

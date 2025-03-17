@@ -2,8 +2,8 @@ from urllib.parse import urlsplit
 from flask import render_template, redirect, flash, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app, db
-from app.forms import LoginForm, RegisterForm, ProfileSettingsForm
-from app.models import User
+from app.forms import LoginForm, RegisterForm, ProfileSettingsForm, EditGameForm
+from app.models import User, Game
 
 
 @app.route('/')
@@ -57,7 +57,7 @@ def user(username):
     return render_template('user.html', user=user)
 
 
-@app.route('/settings', methods=['GET','POST'])
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
     form = ProfileSettingsForm()
@@ -71,3 +71,22 @@ def settings():
         form.website.data = current_user.website
         form.about.data = current_user.about
     return render_template('settings.html', form=form)
+
+
+@app.route('/game/new', methods=['GET', 'POST'])
+@login_required
+def new_game():
+    form = EditGameForm()
+    if form.validate_on_submit():
+        game = Game(title=form.title.data, tagline=form.tagline.data, description=form.description.data, creator=current_user)
+        db.session.add(game)
+        db.session.commit()
+        flash('Your game has been created')
+        return redirect(url_for('game', id=game.id))
+    return render_template('edit_game.html', form=form)
+
+
+@app.route('/game/<id>')
+def game(id):
+    game = db.first_or_404(db.select(Game).where(Game.id == id))
+    return render_template('game.html', game=game)

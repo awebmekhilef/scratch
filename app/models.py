@@ -35,6 +35,8 @@ def load_user(id):
 class Game(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(128))
+    tagline: Mapped[Optional[str]] = mapped_column(String(150))
+    description: Mapped[Optional[str]] = mapped_column(String(5000))
     created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)

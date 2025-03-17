@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length, URL
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, URL
 from app import db
 from app.models import User
 
@@ -32,5 +32,12 @@ class RegisterForm(FlaskForm):
 
 class ProfileSettingsForm(FlaskForm):
     website = StringField('Website', validators=[URL()])
-    about = TextAreaField('About', validators=[Length(min=0, max=1000)])
+    about = TextAreaField('About')
+    submit = SubmitField('Save')
+
+
+class EditGameForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    tagline = StringField('Tagline')
+    description = TextAreaField('Description')
     submit = SubmitField('Save')
