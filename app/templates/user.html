@@ -5,6 +5,6 @@
     {% if user.website %}<p><a href="{{ user.website }}">{{ user.website }}</a></p>{% endif %}
     {% if user.about %}<p>{{ user.about }}</p>{% endif %}
     {% if user == current_user %}
-        <p><a href="{{ url_for('settings') }}">Edit profile</a></p>
+        <p><a href="{{ url_for('main.settings') }}">Edit profile</a></p>
     {% endif %}
 {% endblock %}

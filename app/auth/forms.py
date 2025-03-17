@@ -1,9 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, URL
+from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app import db
 from app.models import User
-
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -28,16 +27,3 @@ class RegisterForm(FlaskForm):
         user = db.session.scalar(db.select(User).where(User.email == email.data))
         if user:
             raise ValidationError('Email already exists')
-
-
-class ProfileSettingsForm(FlaskForm):
-    website = StringField('Website', validators=[URL()])
-    about = TextAreaField('About')
-    submit = SubmitField('Save')
-
-
-class EditGameForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
-    tagline = StringField('Tagline')
-    description = TextAreaField('Description')
-    submit = SubmitField('Save')

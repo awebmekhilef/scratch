@@ -5,7 +5,7 @@
     {% if game.tagline %}<p>{{ game.tagline }}</p>{% endif %}
     {% if game.description %}<p>{{ game.description }}</p>{% endif %}
     {% if game.creator == current_user %}
-        <p><a href="{{ url_for('edit_game', id=game.id) }}">Edit game</a></p>
+        <p><a href="{{ url_for('main.edit_game', id=game.id) }}">Edit game</a></p>
     {% endif %}
-    <p><a href="{{ url_for('user', username=game.creator.username) }}">View creator</a></p>
+    <p><a href="{{ url_for('main.user', username=game.creator.username) }}">View creator</a></p>
 {% endblock %}
