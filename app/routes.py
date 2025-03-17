@@ -90,3 +90,24 @@ def new_game():
 def game(id):
     game = db.first_or_404(db.select(Game).where(Game.id == id))
     return render_template('game.html', game=game)
+
+
+@app.route('/game/<id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_game(id):
+    game = db.first_or_404(db.select(Game).where(Game.id == id))
+    if game.creator != current_user:
+        return redirect(url_for('game', id=game.id))
+    form = EditGameForm()
+    if form.validate_on_submit():
+        game.title = form.title.data
+        game.tagline = form.tagline.data
+        game.description = form.description.data
+        db.session.commit()
+        flash('Your changes have been saved')
+        return redirect(url_for('game', id=game.id))
+    elif request.method == 'GET':
+        form.title.data = game.title
+        form.tagline.data = game.tagline
+        form.description.data = game.description
+    return render_template('edit_game.html', form=form)
