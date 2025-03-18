@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 from hashlib import md5
 from typing import Optional
+from slugify import slugify
 from sqlalchemy import String, ForeignKey
-from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship, validates
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login
@@ -42,11 +43,17 @@ class Game(db.Model):
     title: Mapped[str] = mapped_column(String(128))
     tagline: Mapped[Optional[str]] = mapped_column(String(150))
     description: Mapped[Optional[str]] = mapped_column(String(5000))
+    slug: Mapped[str] = mapped_column(String(128))
     created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)
 
     creator: Mapped[User] = relationship(back_populates='games')
+
+    @validates('title')
+    def _generate_slug(self, key, title):
+        self.slug = slugify(title)
+        return title
 
     def __repr__(self):
         return f'<Game \'{self.title}\'>'

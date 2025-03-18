@@ -33,6 +33,17 @@ def settings():
     return render_template('settings/settings_profile.html', form=form)
 
 
+@bp.route('/game/<id>', defaults={'slug': None})
+@bp.route('/game/<id>/<slug>')
+def game(id, slug):
+    game = db.first_or_404(db.select(Game).where(Game.id == id))
+
+    if not slug or slug != game.slug:
+        return redirect(url_for('main.game', id=game.id, slug=game.slug))
+
+    return render_template('game.html', game=game)
+
+
 @bp.route('/game/new', methods=['GET', 'POST'])
 @login_required
 def new_game():
@@ -43,13 +54,7 @@ def new_game():
         db.session.commit()
         flash('Your game has been created')
         return redirect(url_for('main.game', id=game.id))
-    return render_template('edit_game.html', form=form)
-
-
-@bp.route('/game/<id>')
-def game(id):
-    game = db.first_or_404(db.select(Game).where(Game.id == id))
-    return render_template('game.html', game=game)
+    return render_template('edit_game.html', form=form, editing=False)
 
 
 @bp.route('/game/<id>/edit', methods=['GET', 'POST'])
@@ -70,4 +75,4 @@ def edit_game(id):
         form.title.data = game.title
         form.tagline.data = game.tagline
         form.description.data = game.description
-    return render_template('edit_game.html', form=form, game=game)
+    return render_template('edit_game.html', form=form, game=game, editing=True)
