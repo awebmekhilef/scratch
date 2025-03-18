@@ -30,7 +30,7 @@ def settings():
     elif request.method == 'GET':
         form.website.data = current_user.website
         form.about.data = current_user.about
-    return render_template('settings.html', form=form)
+    return render_template('settings/settings_profile.html', form=form)
 
 
 @bp.route('/game/new', methods=['GET', 'POST'])
@@ -70,4 +70,4 @@ def edit_game(id):
         form.title.data = game.title
         form.tagline.data = game.tagline
         form.description.data = game.description
-    return render_template('edit_game.html', form=form)
+    return render_template('edit_game.html', form=form, game=game)

@@ -38,7 +38,7 @@ def register():
         flash('Your account has been created')
         login_user(user)
         return redirect(url_for('main.index'))
-    return render_template('register.html', form=form)
+    return render_template('auth/register.html', form=form)
 
 
 @bp.route('/logout')

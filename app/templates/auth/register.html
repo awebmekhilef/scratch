@@ -1,36 +1,23 @@
 {% extends "_base.html" %}
 
+{% from "macros.html" import form_field %}
+
 {% block content %}
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <div>
-            {{ form.email.label }}
-            {{ form.email(autofocus=true) }}
-            {% for error in form.email.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div>
-            {{ form.username.label }}
-            {{ form.username() }}
-            {% for error in form.username.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div>
-            {{ form.password.label }}
-            {{ form.password() }}
-            {% for error in form.password.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div>
-            {{ form.confirm_password.label }}
-            {{ form.confirm_password() }}
-            {% for error in form.confirm_password.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </div>
-        <div>{{ form.submit() }}</div>
-    </form>
-{% endblock %}
+    <div class="m-auto form-container">
+        <h2 class="text-center">
+            Create an account
+        </h2>
+        <hr>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ form_field(form.email, autofocus=true) }}
+            {{ form_field(form.username) }}
+            {{ form_field(form.password) }}
+            {{ form_field(form.confirm_password) }}
+            {{ form_field(form.submit, extra_classes='w-100') }}
+            <p class="text-center">
+                <a href="{{ url_for('auth.login') }}">Already have an account?</a>
+            </p>
+        </form>
+    </div>
+{% endblock content %}

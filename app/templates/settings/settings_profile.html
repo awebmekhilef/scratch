@@ -1,0 +1,16 @@
+{% extends "settings/settings.html" %}
+
+{% from "macros.html" import form_field %}
+
+{% block settings %}
+    <h1>
+        Profile
+    </h1>
+    <hr>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {{ form_field(form.website) }}
+        {{ form_field(form.about) }}
+        {{ form_field(form.submit) }}
+    </form>
+{% endblock settings %}

@@ -1,0 +1,30 @@
+{% macro form_field(field, autofocus=False, extra_classes='') %}
+    {%- if field.type == 'BooleanField' %}
+        <div class="form-check mb-3">
+            {{ field(class='form-check-input' + ' ' + extra_classes) }}
+            {{ field.label(class='form-check-label') }}
+        </div>
+    {%- elif field.type == 'TextAreaField' %}
+        <div class="mb-3">
+            {{ field.label(class='form-label') }}
+            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + extra_classes ) }}
+            {%- for error in field.errors %}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+            {%- endfor %}
+        </div>
+    {%- elif field.type == 'SubmitField' %}
+        {{ field(class='btn btn-primary mb-3' + ' ' + extra_classes) }}
+    {%- else %}
+        <div class="mb-3">
+            {{ field.label(class='form-label') }}
+            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + extra_classes , autofocus=autofocus) }}
+            {%- for error in field.errors %}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+            {%- endfor %}
+        </div>
+    {%- endif %}
+{% endmacro %}
