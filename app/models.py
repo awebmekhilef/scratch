@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from hashlib import md5
 from typing import Optional
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship
@@ -22,6 +23,10 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def avatar(self, size):
+        digest = md5(self.email.lower().encode('utf-8')).hexdigest()
+        return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
 
     def __repr__(self):
         return f'<User \'{self.username}\'>'
