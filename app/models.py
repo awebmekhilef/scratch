@@ -24,7 +24,7 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
@@ -40,16 +40,16 @@ def load_user(id):
 
 class Game(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
+    slug: Mapped[str] = mapped_column(String(128))
     title: Mapped[str] = mapped_column(String(128))
     tagline: Mapped[Optional[str]] = mapped_column(String(150))
     description: Mapped[Optional[str]] = mapped_column(String(5000))
-    slug: Mapped[str] = mapped_column(String(128))
-    game_file_path: Mapped[str] = mapped_column(String(256))
     created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)
 
     creator: Mapped[User] = relationship(back_populates='games')
+    upload: Mapped['Upload'] = relationship(back_populates='game')
 
     @validates('title')
     def _generate_slug(self, key, title):
@@ -58,3 +58,11 @@ class Game(db.Model):
 
     def __repr__(self):
         return f'<Game \'{self.title}\'>'
+
+
+class Upload(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    filepath: Mapped[str] = mapped_column(String(256))
+    game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
+
+    game: Mapped[Game] = relationship(back_populates='upload')

@@ -6,7 +6,7 @@ from uuid import uuid4
 from app import db
 from app.main import bp
 from app.main.forms import ProfileSettingsForm, EditGameForm
-from app.models import User, Game
+from app.models import User, Game, Upload
 
 
 @bp.route('/')
@@ -57,8 +57,9 @@ def new_game():
         filepath = f'{folder_name}/{secure_filename(game_file.filename)}'
         blob = storage.bucket().blob(filepath)
         blob.upload_from_string(game_file.stream.read())
-        game.game_file_path = filepath
+        upload = Upload(filepath=filepath, game=game)
         db.session.add(game)
+        db.session.add(upload)
         db.session.commit()
         flash('Your game has been created')
         return redirect(url_for('main.game', id=game.id))
