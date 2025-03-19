@@ -1,9 +1,9 @@
+from typing import Optional
 from datetime import datetime, timezone
 from hashlib import md5
-from typing import Optional
 from slugify import slugify
 from markdown import markdown
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship, validates
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -74,11 +74,17 @@ class Upload(db.Model):
 
     game: Mapped[Game] = relationship(back_populates='upload')
 
+    def __repr__(self):
+        return f'<Upload \'{self.filepath}\'>'
+
 
 class Screenshot(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     filepath: Mapped[str] = mapped_column(String(256))
-    order: Mapped[int] = mapped_column()
+    order: Mapped[int] = mapped_column(Integer())
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
     game: Mapped[Game] = relationship(back_populates='screenshots')
+    
+    def __repr__(self):
+        return f'<Screenshot \'{self.filepath}\'>'

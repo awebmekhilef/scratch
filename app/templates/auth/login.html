@@ -1,9 +1,9 @@
-{% extends "_base.html" %}
+{% extends "base.html" %}
 
 {% from "macros.html" import form_field %}
 
 {% block content %}
-    <div class="m-auto form-container">
+    <div class="m-auto auth-form-container">
         <h2 class="text-center">
             Log in to your account
         </h2>
@@ -13,7 +13,7 @@
             {{ form_field(form.username, autofocus=true) }}
             {{ form_field(form.password) }}
             {{ form_field(form.remember) }}
-            {{ form_field(form.submit, extra_classes='w-100') }}
+            {{ form_field(form.submit, class='w-100') }}
             <p class="text-center">
                 <a href="{{ url_for('auth.register') }}">Create account</a>
                 •

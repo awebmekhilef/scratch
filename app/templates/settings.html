@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="list-group mb-3">
+                <a href="{{ url_for('main.settings') }}" class="list-group-item list-group-item-action active">Profile</a>
+                <a href="#" class="list-group-item list-group-item-action">Password</a>
+                <a href="#" class="list-group-item list-group-item-action">Two-factor authentication</a>
+                <a href="#" class="list-group-item list-group-item-action">Data export</a>
+                <a href="#" class="list-group-item list-group-item-action">Delete account</a>
+            </div>
+        </div>
+        <div class="col-md-8">
+            {% block settings %}
+            {% endblock settings %}
+        </div>
+    </div>
+{% endblock content %}

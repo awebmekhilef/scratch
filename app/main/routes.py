@@ -1,13 +1,13 @@
-from flask import render_template, redirect, flash, url_for, request
+import os
+import uuid
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from firebase_admin import storage
-from uuid import uuid4
 from app import db
 from app.main import bp
 from app.main.forms import ProfileSettingsForm, EditGameForm
 from app.models import User, Game, Upload, Screenshot
-import os
 
 
 @bp.route('/')
@@ -35,7 +35,7 @@ def settings():
     elif request.method == 'GET':
         form.website.data = current_user.website
         form.about.data = current_user.about
-    return render_template('settings/settings_profile.html', form=form)
+    return render_template('settings_profile.html', form=form)
 
 
 @bp.route('/game/<id>', defaults={'slug': None})
@@ -54,7 +54,7 @@ def new_game():
     if form.validate_on_submit():
         game = Game(title=form.title.data, tagline=form.tagline.data, description=form.description.data, creator=current_user)
 
-        folder_name = uuid4()
+        folder_name = uuid.uuid4()
         bucket = storage.bucket()
 
         cover = form.cover.data
@@ -64,7 +64,7 @@ def new_game():
         game.cover_filepath = filepath
 
         game_file = form.upload.data
-        filepath = f'{folder_name}/{secure_filename(game_file.filename)}'
+        filepath = f'{folder_name}/upload/{secure_filename(game_file.filename)}'
         upload = Upload(filepath=filepath, game=game, size='0 MB')
         db.session.add(upload)
         blob = bucket.blob(filepath)
