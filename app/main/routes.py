@@ -70,12 +70,13 @@ def new_game():
         blob = bucket.blob(filepath)
         blob.upload_from_string(game_file.stream.read())
 
-        for index, file in enumerate(form.screenshots.data):
-            filepath = f'{folder_name}/screenshots/{secure_filename(file.filename)}'
-            screenshot = Screenshot(filepath=filepath, order=index, game=game)
-            db.session.add(screenshot)
-            blob = bucket.blob(filepath)
-            blob.upload_from_string(file.stream.read())
+        if form.screenshots.data:
+            for index, file in enumerate(form.screenshots.data):
+                filepath = f'{folder_name}/screenshots/{secure_filename(file.filename)}'
+                screenshot = Screenshot(filepath=filepath, order=index, game=game)
+                db.session.add(screenshot)
+                blob = bucket.blob(filepath)
+                blob.upload_from_string(file.stream.read())
 
         db.session.add(game)
         db.session.commit()

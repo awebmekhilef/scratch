@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from hashlib import md5
 from typing import Optional
 from slugify import slugify
+from markdown import markdown
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship, validates
 from flask_login import UserMixin
@@ -57,6 +58,9 @@ class Game(db.Model):
     def _generate_slug(self, key, title):
         self.slug = slugify(title)
         return title
+
+    def markdown(self):
+        return markdown(self.description)
 
     def __repr__(self):
         return f'<Game \'{self.title}\'>'
