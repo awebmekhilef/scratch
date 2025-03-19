@@ -3,6 +3,8 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from firebase_admin import credentials
+import firebase_admin
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -17,6 +19,11 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+
+    cred = credentials.Certificate(app.config['GOOGLE_APPLICATION_CREDENTIALS'])
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': app.config['FIREBASE_STORAGE_BUCKET']
+    })
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp)

@@ -44,6 +44,7 @@ class Game(db.Model):
     tagline: Mapped[Optional[str]] = mapped_column(String(150))
     description: Mapped[Optional[str]] = mapped_column(String(5000))
     slug: Mapped[str] = mapped_column(String(128))
+    game_file_path: Mapped[str] = mapped_column(String(256))
     created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)

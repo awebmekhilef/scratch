@@ -9,7 +9,7 @@
                 <a href="{{ url_for('main.user', username=current_user.username) }}">{{ current_user.username }}</a>
             </li>
             <li class="breadcrumb-item">
-                {% if editing %}
+                {% if game %}
                     <a href="{{ url_for('main.game', id=game.id) }}">{{ game.title }}</a>
                 {% else %}
                     New game
@@ -17,11 +17,14 @@
             </li>
         </ol>
     </nav>
-    <form action="" method="post" novalidate>
+    <form action="" method="post" enctype="multipart/form-data" novalidate>
         {{ form.hidden_tag() }}
         {{ form_field(form.title) }}
         {{ form_field(form.tagline) }}
         {{ form_field(form.description) }}
+        {% if not game %}
+            {{ form_field(form.game_file) }}
+        {% endif %}
         {{ form_field(form.submit) }}
     </form>
 {% endblock content %}

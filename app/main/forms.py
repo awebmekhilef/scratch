@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired
 from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import  DataRequired, URL
 
@@ -12,4 +13,5 @@ class EditGameForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     tagline = StringField('Tagline')
     description = TextAreaField('Description')
+    game_file = FileField('Game File', validators=[FileRequired()])
     submit = SubmitField('Save')

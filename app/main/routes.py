@@ -1,5 +1,8 @@
 from flask import render_template, redirect, flash, url_for, request
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
+from firebase_admin import storage
+from uuid import uuid4
 from app import db
 from app.main import bp
 from app.main.forms import ProfileSettingsForm, EditGameForm
@@ -37,10 +40,8 @@ def settings():
 @bp.route('/game/<id>/<slug>')
 def game(id, slug):
     game = db.first_or_404(db.select(Game).where(Game.id == id))
-
     if not slug or slug != game.slug:
         return redirect(url_for('main.game', id=game.id, slug=game.slug))
-
     return render_template('game.html', game=game)
 
 
@@ -50,11 +51,17 @@ def new_game():
     form = EditGameForm()
     if form.validate_on_submit():
         game = Game(title=form.title.data, tagline=form.tagline.data, description=form.description.data, creator=current_user)
+        folder_name = uuid4()
+        game_file = form.game_file.data
+        filepath = f'{folder_name}/{secure_filename(game_file.filename)}'
+        blob = storage.bucket().blob(filepath)
+        blob.upload_from_string(game_file.stream.read())
+        game.game_file_path = filepath
         db.session.add(game)
         db.session.commit()
         flash('Your game has been created')
         return redirect(url_for('main.game', id=game.id))
-    return render_template('edit_game.html', form=form, editing=False)
+    return render_template('edit_game.html', form=form)
 
 
 @bp.route('/game/<id>/edit', methods=['GET', 'POST'])
@@ -75,4 +82,4 @@ def edit_game(id):
         form.title.data = game.title
         form.tagline.data = game.tagline
         form.description.data = game.description
-    return render_template('edit_game.html', form=form, game=game, editing=True)
+    return render_template('edit_game.html', form=form, game=game)
