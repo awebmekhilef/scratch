@@ -1,4 +1,4 @@
-"""Update game table
+"""Create upload table
 
 Revision ID: 8684fa4b2ae3
 Revises: 574022d2c33a
