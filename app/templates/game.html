@@ -11,9 +11,11 @@
     {% endif %}
     {% if game.description %}
         <p>
-            {{ game.markdown() | safe}}
+            {{ game.markdown() | safe }}
         </p>
     {% endif %}
+    <p>Created: {{ moment(game.created_at).format('LL') }} ({{ moment(game.created_at).fromNow() }})</p>
+    <p>Updated: {{ moment(game.updated_at).format('LL') }} ({{ moment(game.updated_at).fromNow() }})</p>
     {% if game.creator == current_user %}
         <p>
             <a href="{{ url_for('main.edit_game', id=game.id) }}">Edit game</a>
