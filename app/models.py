@@ -44,12 +44,14 @@ class Game(db.Model):
     title: Mapped[str] = mapped_column(String(128))
     tagline: Mapped[Optional[str]] = mapped_column(String(150))
     description: Mapped[Optional[str]] = mapped_column(String(5000))
+    cover_filepath: Mapped[str] = mapped_column(String(256))
     created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)
 
     creator: Mapped[User] = relationship(back_populates='games')
     upload: Mapped['Upload'] = relationship(back_populates='game')
+    screenshots: WriteOnlyMapped['Screenshot'] = relationship(back_populates='game')
 
     @validates('title')
     def _generate_slug(self, key, title):
@@ -63,6 +65,16 @@ class Game(db.Model):
 class Upload(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     filepath: Mapped[str] = mapped_column(String(256))
+    size: Mapped[str] = mapped_column(String(16))
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
     game: Mapped[Game] = relationship(back_populates='upload')
+
+
+class Screenshot(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    filepath: Mapped[str] = mapped_column(String(256))
+    order: Mapped[int] = mapped_column()
+    game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
+
+    game: Mapped[Game] = relationship(back_populates='screenshots')

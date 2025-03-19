@@ -6,7 +6,8 @@ from uuid import uuid4
 from app import db
 from app.main import bp
 from app.main.forms import ProfileSettingsForm, EditGameForm
-from app.models import User, Game, Upload
+from app.models import User, Game, Upload, Screenshot
+import os
 
 
 @bp.route('/')
@@ -52,15 +53,33 @@ def new_game():
     form = EditGameForm()
     if form.validate_on_submit():
         game = Game(title=form.title.data, tagline=form.tagline.data, description=form.description.data, creator=current_user)
+
         folder_name = uuid4()
-        game_file = form.game_file.data
+        bucket = storage.bucket()
+
+        cover = form.cover.data
+        filepath = f'{folder_name}/cover{os.path.splitext(cover.filename)[1]}'
+        blob = bucket.blob(filepath)
+        blob.upload_from_string(cover.stream.read())
+        game.cover_filepath = filepath
+
+        game_file = form.upload.data
         filepath = f'{folder_name}/{secure_filename(game_file.filename)}'
-        blob = storage.bucket().blob(filepath)
-        blob.upload_from_string(game_file.stream.read())
-        upload = Upload(filepath=filepath, game=game)
-        db.session.add(game)
+        upload = Upload(filepath=filepath, game=game, size='0 MB')
         db.session.add(upload)
+        blob = bucket.blob(filepath)
+        blob.upload_from_string(game_file.stream.read())
+
+        for index, file in enumerate(form.screenshots.data):
+            filepath = f'{folder_name}/screenshots/{secure_filename(file.filename)}'
+            screenshot = Screenshot(filepath=filepath, order=index, game=game)
+            db.session.add(screenshot)
+            blob = bucket.blob(filepath)
+            blob.upload_from_string(file.stream.read())
+
+        db.session.add(game)
         db.session.commit()
+
         flash('Your game has been created')
         return redirect(url_for('main.game', id=game.id))
     return render_template('edit_game.html', form=form)

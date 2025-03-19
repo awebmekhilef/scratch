@@ -18,13 +18,23 @@
         </ol>
     </nav>
     <form action="" method="post" enctype="multipart/form-data" novalidate>
-        {{ form.hidden_tag() }}
-        {{ form_field(form.title) }}
-        {{ form_field(form.tagline) }}
-        {{ form_field(form.description) }}
-        {% if not game %}
-            {{ form_field(form.game_file) }}
-        {% endif %}
-        {{ form_field(form.submit) }}
-    </form>
+        <div class="row">
+            <div class="col-lg-8">
+                {{ form.hidden_tag() }}
+                {{ form_field(form.title) }}
+                {{ form_field(form.tagline) }}
+                {{ form_field(form.description) }}
+                {% if not game %}
+                    {{ form_field(form.upload) }}
+                {% endif %}
+                {{ form_field(form.submit) }}
+            </div>
+            <div class="col-lg-4">
+                {% if not game %}
+                    {{ form_field(form.cover) }}
+                    {{ form_field(form.screenshots) }}
+                {% endif %}
+            </div>
+        </form>
+    </div>
 {% endblock content %}
