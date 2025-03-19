@@ -17,7 +17,8 @@ def index():
 @bp.route('/user/<username>')
 def user(username):
     user = db.first_or_404(db.select(User).where(User.username == username))
-    return render_template('user.html', user=user)
+    games = db.session.scalars(user.games.select().order_by(Game.created_at.desc())).all()
+    return render_template('user.html', user=user, games=games)
 
 
 @bp.route('/settings', methods=['GET', 'POST'])
