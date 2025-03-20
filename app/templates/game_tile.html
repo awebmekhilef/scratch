@@ -1,0 +1,13 @@
+<a href="{{ url_for('main.game', id=game.id) }}" class="text-decoration-none">
+    <div class="card">
+        <img src="{{ game.cover_url }}" class="card-img-top" alt="Game cover image">
+        <div class="card-body">
+            <h6 class="card-title">
+                {{ game.title }}
+            </h6>
+            <p class="card-text small">
+                {{ game.tagline }}
+            </p>
+        </div>
+    </div>
+</a>

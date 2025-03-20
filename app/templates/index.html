@@ -4,19 +4,7 @@
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
         {% for game in games %}
             <div class="col">
-                <a href="{{ url_for('main.game', id=game.id) }}" class="text-decoration-none">
-                    <div class="card">
-                        <img src="{{ game.cover_url }}" class="card-img-top" alt="Game cover image">
-                        <div class="card-body">
-                            <h6 class="card-title">
-                                {{ game.title }}
-                            </h6>
-                            <p class="card-text small">
-                                {{ game.tagline }}
-                            </p>
-                        </div>
-                    </div>
-                </a>
+                {% include "game_tile.html" %}
             </div>
         {% endfor %}
     </div>
