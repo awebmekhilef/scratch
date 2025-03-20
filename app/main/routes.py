@@ -12,7 +12,8 @@ from app.models import User, Game, Upload, Screenshot
 
 @bp.route('/')
 def index():
-    return render_template('index.html')
+    games = db.session.scalars(db.select(Game).order_by(Game.created_at.desc())).all()
+    return render_template('index.html', games=games)
 
 
 @bp.route('/user/<username>')
