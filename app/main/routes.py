@@ -45,7 +45,8 @@ def game(id, slug):
     game = db.first_or_404(db.select(Game).where(Game.id == id))
     if not slug or slug != game.slug:
         return redirect(url_for('main.game', id=game.id, slug=game.slug))
-    return render_template('game.html', game=game)
+    screenshots = db.session.scalars(game.screenshots.select().order_by(Screenshot.order.asc())).all()
+    return render_template('game.html', game=game, screenshots=screenshots)
 
 
 @bp.route('/game/new', methods=['GET', 'POST'])
