@@ -45,7 +45,7 @@ class Game(db.Model):
     title: Mapped[str] = mapped_column(String(128))
     tagline: Mapped[Optional[str]] = mapped_column(String(150))
     description: Mapped[Optional[str]] = mapped_column(String(5000))
-    cover_filepath: Mapped[str] = mapped_column(String(256))
+    cover_url: Mapped[str] = mapped_column(String(256))
     created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)
@@ -68,23 +68,23 @@ class Game(db.Model):
 
 class Upload(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    filepath: Mapped[str] = mapped_column(String(256))
-    size: Mapped[str] = mapped_column(String(16))
+    url: Mapped[str] = mapped_column(String(256))
+    size: Mapped[int] = mapped_column(Integer())
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
     game: Mapped[Game] = relationship(back_populates='upload')
 
     def __repr__(self):
-        return f'<Upload \'{self.filepath}\'>'
+        return f'<Upload \'{self.url}\'>'
 
 
 class Screenshot(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    filepath: Mapped[str] = mapped_column(String(256))
+    url: Mapped[str] = mapped_column(String(256))
     order: Mapped[int] = mapped_column(Integer())
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
     game: Mapped[Game] = relationship(back_populates='screenshots')
     
     def __repr__(self):
-        return f'<Screenshot \'{self.filepath}\'>'
+        return f'<Screenshot \'{self.url}\'>'
