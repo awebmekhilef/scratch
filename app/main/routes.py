@@ -7,7 +7,7 @@ from firebase_admin import storage
 from app import db
 from app.main import bp
 from app.main.forms import ProfileSettingsForm, EditGameForm
-from app.models import User, Game, Upload, Screenshot
+from app.models import User, Game, Upload, Screenshot, Tag
 
 
 @bp.route('/')
@@ -79,6 +79,17 @@ def new_game():
                 blob.upload_from_string(file.stream.read())
                 screenshot = Screenshot(url=blob.public_url, order=index, game=game)
                 db.session.add(screenshot)
+
+        tags_str = form.tags.data
+        if tags_str:
+            tags = {tag.strip() for tag in tags_str.lower().split(',') if tag.strip()}
+
+            for tag_name in tags:
+                tag = Tag.query.filter_by(name=tag_name).first()
+                if not tag:
+                    tag = Tag(name=tag_name)
+                    db.session.add(tag)
+                game.tags.append(tag)
 
         db.session.add(game)
         db.session.commit()

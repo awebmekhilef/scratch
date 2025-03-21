@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timezone
 from hashlib import md5
 from slugify import slugify
 from markdown import markdown
-from sqlalchemy import Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship, validates
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -39,6 +39,14 @@ def load_user(id):
     return db.session.get(User, int(id))
 
 
+game_tag = Table(
+    'game_tag',
+    db.metadata,
+    Column('game_id', Integer(), ForeignKey('game.id'), primary_key=True),
+    Column('tag_id', Integer(), ForeignKey('tag.id'), primary_key=True)
+)
+
+
 class Game(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     slug: Mapped[str] = mapped_column(String(128))
@@ -53,6 +61,7 @@ class Game(db.Model):
     creator: Mapped[User] = relationship(back_populates='games')
     upload: Mapped['Upload'] = relationship(back_populates='game')
     screenshots: WriteOnlyMapped['Screenshot'] = relationship(back_populates='game')
+    tags: Mapped[List['Tag']] = relationship(secondary=game_tag)
 
     @validates('title')
     def _generate_slug(self, key, title):
@@ -85,6 +94,11 @@ class Screenshot(db.Model):
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
     game: Mapped[Game] = relationship(back_populates='screenshots')
-    
+
     def __repr__(self):
         return f'<Screenshot \'{self.url}\'>'
+
+
+class Tag(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(32))

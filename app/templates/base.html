@@ -25,7 +25,7 @@
                             <img src="{{ current_user.avatar(32) }}" alt="Profile picture" width="32" height="32">
                         </a>
                         <a href="{{ url_for('main.user', username=current_user.username) }}"
-                           class="navbar-text me-2 link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
+                           class="navbar-text me-2 link-underline-secondary link-underline-opacity-0 link-underline-opacity-100-hover">
                             {{ current_user.username }}
                         </a>
                         <div class="dropdown">

@@ -1,13 +1,22 @@
-<a href="{{ url_for('main.game', id=game.id) }}" class="text-decoration-none">
-    <div class="card h-100">
+<div class="card h-100">
+    <a href="{{ url_for('main.game', id=game.id) }}">
         <img src="{{ game.cover_url }}" class="card-img-top" alt="Game cover image">
-        <div class="card-body">
+    </a>
+    <div class="card-body">
+        <a href="{{ url_for('main.game', id=game.id) }}"
+           class="link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
             <h6 class="card-title">
                 {{ game.title }}
             </h6>
-            <p class="card-text small">
-                {{ game.tagline }}
-            </p>
-        </div>
+        </a>
+        <p class="card-text small">
+            {% if game.tags %}
+                {% for tag in game.tags %}
+                    <a href="#" class="text-decoration-none">#{{ tag.name }}</a>
+                {% endfor %}
+                <br>
+            {% endif %}
+            {{ game.tagline }}
+        </p>
     </div>
-</a>
+</div>

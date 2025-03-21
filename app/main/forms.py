@@ -13,6 +13,7 @@ class ProfileSettingsForm(FlaskForm):
 class EditGameForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     tagline = StringField('Tagline')
+    tags = StringField('Tags')
     description = TextAreaField('Description')
     upload = FileField('Game File Upload', validators=[FileRequired()])
     cover = FileField('Cover Image', validators=[FileRequired()])

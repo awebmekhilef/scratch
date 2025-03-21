@@ -23,6 +23,7 @@
                 {{ form.hidden_tag() }}
                 {{ form_field(form.title) }}
                 {{ form_field(form.tagline) }}
+                {{ form_field(form.tags) }}
                 {{ form_field(form.description) }}
                 {% if not game %}
                     {{ form_field(form.upload) }}
