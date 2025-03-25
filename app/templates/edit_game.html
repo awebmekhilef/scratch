@@ -23,12 +23,12 @@
                 {{ form.hidden_tag() }}
                 {{ form_field(form.title) }}
                 {{ form_field(form.tagline) }}
-                {{ form_field(form.tags) }}
                 {{ form_field(form.description) }}
                 {% if not game %}
-                {{ form_field(form.upload) }}
+                    {{ form_field(form.tags) }}
+                    {{ form_field(form.upload) }}
+                    {{ form_field(form.web_build) }}
                 {% endif %}
-                {{ form_field(form.web_build) }}
                 {{ form_field(form.submit) }}
             </div>
             <div class="col-lg-4">
