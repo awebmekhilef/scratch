@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+    {% if game.upload.web_build %}
+        <iframe src="{{ game.upload.url }}" frameborder="0" allowfullscreen="true" class="d-block mx-auto" width="1280" height="720"></iframe>
+    {% endif %}
     <div class="row">
         <div class="col-md-8">
             <h1>
@@ -22,6 +25,9 @@
             <p>
                 Updated: {{ moment(game.updated_at).format('LL') }} ({{ moment(game.updated_at).fromNow() }})
             </p>
+            {% if not game.upload.web_build %}
+                <a class="btn btn-primary btn-lg" href="{{ game.upload.url }}" role="button">Download</a>
+            {% endif %}
             <p>
                 <a href="{{ url_for('main.user', username=game.creator.username) }}">View creator</a>
             </p>

@@ -1,5 +1,8 @@
 import os
 import uuid
+import tempfile
+import zipfile
+import mimetypes
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -65,12 +68,31 @@ def new_game():
         blob.upload_from_string(cover.stream.read())
         game.cover_url = blob.public_url
 
-        game_file = form.upload.data
-        filepath = f'{folder_name}/upload/{secure_filename(game_file.filename)}'
-        blob = bucket.blob(filepath)
-        blob.upload_from_string(game_file.stream.read())
-        upload = Upload(url=blob.public_url, game=game, size=0)
-        db.session.add(upload)
+        if form.web_build.data:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                upload_filepath = os.path.join(temp_dir, secure_filename(form.upload.data.filename))
+                form.upload.data.save(upload_filepath)
+                with zipfile.ZipFile(upload_filepath) as zip_file:
+                    zip_file.extractall(temp_dir)
+                os.unlink(upload_filepath)
+                for root, _, files in os.walk(temp_dir):
+                    for file in files:
+                        filepath = os.path.join(root, file)
+                        relpath = os.path.relpath(filepath, start=temp_dir)
+                        with open(filepath, 'rb') as file_data:
+                            blob = bucket.blob(f'{folder_name}/upload/{relpath}')
+                            blob.upload_from_file(file_data, content_type=mimetypes.guess_type(filepath)[0])
+
+            blob = bucket.blob(f'{folder_name}/upload/index.html')
+            upload = Upload(url=blob.public_url, game=game, web_build=True, size=0)
+            db.session.add(upload)
+        else:
+            game_file = form.upload.data
+            filepath = f'{folder_name}/upload/{secure_filename(game_file.filename)}'
+            blob = bucket.blob(filepath)
+            blob.upload_from_string(game_file.stream.read())
+            upload = Upload(url=blob.public_url, game=game, web_build=False, size=0)
+            db.session.add(upload)
 
         if form.screenshots.data:
             for index, file in enumerate(form.screenshots.data):

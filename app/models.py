@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from hashlib import md5
 from slugify import slugify
 from markdown import markdown
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship, validates
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -79,6 +79,7 @@ class Upload(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     url: Mapped[str] = mapped_column(String(256))
     size: Mapped[int] = mapped_column(Integer())
+    web_build: Mapped[bool] = mapped_column(Boolean())
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
     game: Mapped[Game] = relationship(back_populates='upload')
