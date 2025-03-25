@@ -1,14 +1,12 @@
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
 from firebase_admin import credentials
 import firebase_admin
 
 db = SQLAlchemy()
-migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please login to access this page'
@@ -20,7 +18,6 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
-    migrate.init_app(app, db)
     login.init_app(app)
     moment.init_app(app)
 
@@ -37,6 +34,9 @@ def create_app():
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
+    
+    with app.app_context():
+        db.create_all()
 
     return app
 
