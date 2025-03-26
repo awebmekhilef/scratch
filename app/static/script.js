@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('uploads')
     const fileList = document.getElementById('file-list')
 
-    fileInput.addEventListener('change', () => {
+    fileInput?.addEventListener('change', () => {
         fileList.innerHTML = ''
         const files = Array.from(fileInput.files)
 
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     })
 
-    fileList.addEventListener('change', (event) => {
+    fileList?.addEventListener('change', (event) => {
         if (event.target.classList.contains('web-build-checkbox')) {
             const checkboxes = document.querySelectorAll('.web-build-checkbox')
 
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    document.getElementById('edit-game-form').addEventListener('submit', () => {
+    document.getElementById('edit-game-form')?.addEventListener('submit', () => {
         const uploadsMetadata = Array.from(document.querySelectorAll('#file-list .list-group-item')).map(item => {
             const webBuildCheckbox = item.querySelector('.web-build-checkbox');
             return {
@@ -47,5 +47,16 @@ document.addEventListener('DOMContentLoaded', () => {
         })
 
         document.getElementById("uploads_metadata").value = JSON.stringify(uploadsMetadata);
+    })
+
+
+    const iframePlaceholder = document.getElementById('iframe-placeholder')
+    const runGameButton = document.getElementById('run-game-button')
+    
+    runGameButton?.addEventListener('click', () => {
+        runGameButton.remove()
+        const iframe = iframePlaceholder.getAttribute('data-iframe')
+        iframePlaceholder.removeAttribute('data-iframe')
+        iframePlaceholder.innerHTML = iframe
     })
 })

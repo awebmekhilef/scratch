@@ -3,7 +3,13 @@
 {% block content %}
     {% for upload in uploads %}
         {% if upload.is_web_build %}
-            <iframe src="{{ upload.url }}" frameborder="0" allowfullscreen="true" class="d-block mx-auto" width="1280" height="720"></iframe>
+            <div id="iframe-placeholder"
+                 class="bg-body-secondary mx-auto d-flex"
+                 data-iframe="<iframe src='{{ upload.url }}' class='w-100 h-100' frameborder='0' allowfullscreen='true' width='960' height='600' scrolling='no'></iframe>">
+                <button id="run-game-button" class="btn btn-primary mx-auto my-auto">
+                    Run game
+                </button>
+            </div>
         {% endif %}
     {% endfor %}
     <div class="row">
