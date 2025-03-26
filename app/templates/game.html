@@ -1,59 +1,82 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for upload in uploads %}
-        {% if upload.is_web_build %}
-            <div id="iframe-placeholder"
-                 class="bg-body-secondary mx-auto d-flex"
-                 data-iframe="<iframe src='{{ upload.url }}' class='w-100 h-100' frameborder='0' allowfullscreen='true' width='960' height='600' scrolling='no'></iframe>">
-                <button id="run-game-button" class="btn btn-primary mx-auto my-auto">
-                    Run game
-                </button>
-            </div>
-        {% endif %}
-    {% endfor %}
-    <div class="row">
-        <div class="col-md-8">
-            <h1>
-                {{ game.title }}
-            </h1>
-            {% if game.tagline %}
-                <p>
-                    {{ game.tagline }}
-                </p>
+    <div class="game-page-container mx-auto">
+        {% for upload in uploads %}
+            {% if upload.is_web_build %}
+                <div id="iframe-placeholder"
+                     class="bg-body-secondary mx-auto d-flex"
+                     data-iframe="<iframe src='{{ upload.url }}' class='w-100 h-100' frameborder='0' allowfullscreen='true' width='960' height='600' scrolling='no'></iframe>">
+                    <button id="run-game-button" class="btn btn-primary mx-auto my-auto">
+                        Run game
+                    </button>
+                </div>
             {% endif %}
-            {% if game.description %}
-                <p>
-                    {{ game | markdown | safe }}
-                </p>
-            {% endif %}
-            <p>
-                Created: {{ moment(game.created_at).format('LL') }} ({{ moment(game.created_at).fromNow() }})
-            </p>
-            <p>
-                Updated: {{ moment(game.updated_at).format('LL') }} ({{ moment(game.updated_at).fromNow() }})
-            </p>
-            {% for upload in uploads %}
-                {% if not upload.is_web_build %}
+        {% endfor %}
+        <div class="row">
+            <div id="screenshot-carousel" class="col d-lg-none carousel slide">
+                <div class="carousel-inner">
+                    {% for screenshot in screenshots %}
+                        {% if loop.index == 1 %}
+                            <div class="carousel-item active">
+                        {% else %}
+                            <div class="carousel-item">
+                        {% endif %}
+                                <img src="{{ screenshot.url }}" class="d-block w-100" alt="Screenshot {{ screenshot.order }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#screenshot-carousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#screenshot-carousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+                <div class="col-lg-8">
+                    <h1>
+                        {{ game.title }}
+                    </h1>
+                    {% if game.tagline %}
+                        <p>
+                            {{ game.tagline }}
+                        </p>
+                    {% endif %}
+                    {% if game.description %}
+                        <p>
+                            {{ game | markdown | safe }}
+                        </p>
+                    {% endif %}
                     <p>
-                        {{ upload.filename }}
+                        Created: {{ moment(game.created_at).format('LL') }} ({{ moment(game.created_at).fromNow() }})
                     </p>
-                    <a class="btn btn-primary btn-lg" href="{{ upload.url }}" target="_blank">Download</a>
-                {% endif %}
-            {% endfor %}
-            <p>
-                <a href="{{ url_for('main.user', username=game.creator.username) }}">View creator</a>
-            </p>
-            {% if game.creator == current_user %}
-                <p>
-                    <a href="{{ url_for('main.edit_game', id=game.id) }}">Edit game</a>
-                </p>
-            {% endif %}
+                    <p>
+                        Updated: {{ moment(game.updated_at).format('LL') }} ({{ moment(game.updated_at).fromNow() }})
+                    </p>
+                    {% for upload in uploads %}
+                        {% if not upload.is_web_build %}
+                            <p>
+                                {{ upload.filename }}
+                            </p>
+                            <a class="btn btn-primary btn-lg" href="{{ upload.url }}" target="_blank">Download</a>
+                        {% endif %}
+                    {% endfor %}
+                    <p>
+                        <a href="{{ url_for('main.user', username=game.creator.username) }}">View creator</a>
+                    </p>
+                    {% if game.creator == current_user %}
+                        <p>
+                            <a href="{{ url_for('main.edit_game', id=game.id) }}">Edit game</a>
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="col-lg-4 d-lg-block d-none">
+                    {% for screenshot in screenshots %}
+                        <img src="{{ screenshot.url }}" class="mb-3 w-100" alt="Screenshot {{ screenshot.order }}">
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-        <div class="col-md-4">
-            {% for screenshot in screenshots %}
-                <img src="{{ screenshot.url }}" class="mb-3 w-100" alt="Screenshot {{ screenshot.order }}">
-            {% endfor %}
-        </div>
-    </div>
-{% endblock content %}
+    {% endblock content %}

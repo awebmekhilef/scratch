@@ -2,6 +2,10 @@
     max-width: 420px;
 }
 
+.game-page-container {
+    max-width: 980px;
+}
+
 #iframe-placeholder {
     width: 980px;
     height: 668px;
