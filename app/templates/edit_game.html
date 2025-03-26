@@ -17,17 +17,19 @@
             </li>
         </ol>
     </nav>
-    <form action="" method="post" enctype="multipart/form-data" novalidate>
+    <form id="edit-game-form" action="" method="post" enctype="multipart/form-data" novalidate>
         <div class="row">
             <div class="col-lg-8">
                 {{ form.hidden_tag() }}
                 {{ form_field(form.title) }}
                 {{ form_field(form.tagline) }}
+                {{ form_field(form.tags) }}
                 {{ form_field(form.description) }}
                 {% if not game %}
-                    {{ form_field(form.tags) }}
-                    {{ form_field(form.upload) }}
-                    {{ form_field(form.web_build) }}
+                    {{ form_field(form.uploads) }}
+                    <ul class="list-group mb-3" id="file-list">
+                    </ul>
+                    {{ form_field(form.uploads_metadata) }}
                 {% endif %}
                 {{ form_field(form.submit) }}
             </div>

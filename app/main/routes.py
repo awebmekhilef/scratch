@@ -1,4 +1,5 @@
 import os
+import json
 import uuid
 import tempfile
 import zipfile
@@ -48,8 +49,9 @@ def game(id, slug):
     game = db.first_or_404(db.select(Game).where(Game.id == id))
     if not slug or slug != game.slug:
         return redirect(url_for('main.game', id=game.id, slug=game.slug))
+    uploads = db.session.scalars(game.uploads.select()).all()
     screenshots = db.session.scalars(game.screenshots.select().order_by(Screenshot.order.asc())).all()
-    return render_template('game.html', game=game, screenshots=screenshots)
+    return render_template('game.html', game=game, uploads=uploads, screenshots=screenshots)
 
 
 @bp.route('/game/new', methods=['GET', 'POST'])
@@ -57,51 +59,62 @@ def game(id, slug):
 def new_game():
     form = EditGameForm()
     if form.validate_on_submit():
-        if not form.upload.data or not form.cover.data:
-            flash('Game file upload and cover image are required')
-            return render_template('edit_game.html', form=form)
-        game = Game(title=form.title.data, tagline=form.tagline.data, description=form.description.data, creator=current_user)
+        game = Game(
+            title=form.title.data,
+            tagline=form.tagline.data,
+            description=form.description.data,
+            creator=current_user)
 
-        folder_name = uuid.uuid4()
+        folder = uuid.uuid4()
         bucket = storage.bucket()
 
-        cover = form.cover.data
-        filepath = f'{folder_name}/cover{os.path.splitext(cover.filename)[1]}'
-        blob = bucket.blob(filepath)
-        blob.upload_from_string(cover.stream.read())
-        game.cover_url = blob.public_url
+        uploads_metadata = json.loads(form.uploads_metadata.data)
+        uploads = form.uploads.data
+        if uploads:
+            for index, upload_file in enumerate(uploads):
+                upload_filename = secure_filename(upload_file.filename)
+                is_web_build = uploads_metadata[index].get('is_web_build', False)
 
-        if form.web_build.data:
-            with tempfile.TemporaryDirectory() as temp_dir:
-                upload_filepath = os.path.join(temp_dir, secure_filename(form.upload.data.filename))
-                form.upload.data.save(upload_filepath)
-                with zipfile.ZipFile(upload_filepath) as zip_file:
-                    zip_file.extractall(temp_dir)
-                os.unlink(upload_filepath)
-                for root, _, files in os.walk(temp_dir):
-                    for file in files:
-                        filepath = os.path.join(root, file)
-                        relpath = os.path.relpath(filepath, start=temp_dir)
-                        with open(filepath, 'rb') as file_data:
-                            blob = bucket.blob(f'{folder_name}/upload/{relpath}')
-                            blob.upload_from_file(file_data, content_type=mimetypes.guess_type(filepath)[0])
+                if is_web_build:
+                    if os.path.splitext(upload_file.filename)[1] != '.zip':
+                        flash('Only .zip files are allowed for web builds')
+                        return render_template('edit_game.html', form=form)
 
-            blob = bucket.blob(f'{folder_name}/upload/index.html')
-            upload = Upload(url=blob.public_url, game=game, web_build=True, size=0)
-            db.session.add(upload)
-        else:
-            game_file = form.upload.data
-            filepath = f'{folder_name}/upload/{secure_filename(game_file.filename)}'
-            blob = bucket.blob(filepath)
-            blob.upload_from_string(game_file.stream.read())
-            upload = Upload(url=blob.public_url, game=game, web_build=False, size=0)
-            db.session.add(upload)
+                    with tempfile.TemporaryDirectory() as tmp_dir:
+                        upload_filepath = os.path.join(tmp_dir, upload_filename)
+                        upload_file.save(upload_filepath)
+                        with zipfile.ZipFile(upload_filepath) as zip_file:
+                            zip_file.extractall(tmp_dir)
+                        os.unlink(upload_filepath)
+
+                        for root, _, files in os.walk(tmp_dir):
+                            for file in files:
+                                filepath = os.path.join(root, file)
+                                relpath = os.path.relpath(filepath, start=tmp_dir)
+                                with open(filepath, 'rb') as file_data:
+                                    blob = bucket.blob(f'{folder}/uploads/web/{relpath}')
+                                    blob.upload_from_file(file_data, content_type=mimetypes.guess_type(filepath)[0])
+
+                                    if relpath == 'index.html':
+                                        upload = Upload(url=blob.public_url, filename=relpath, game=game, is_web_build=True, size=0)
+                                        db.session.add(upload)
+                else:
+                    bytes = upload_file.read()
+                    blob = bucket.blob(f'{folder}/uploads/{upload_filename}')
+                    blob.upload_from_string(bytes, content_type=upload_file.mimetype)
+                    upload = Upload(url=blob.public_url, filename=upload_filename, game=game, is_web_build=False, size=len(bytes))
+                    db.session.add(upload)
+
+        cover_file = form.cover.data
+        if cover_file:
+            blob = bucket.blob(f'{folder}/cover{os.path.splitext(cover_file.filename)[1]}')
+            blob.upload_from_string(cover_file.read(), content_type=cover_file.mimetype)
+            game.cover_url = blob.public_url
 
         if form.screenshots.data:
-            for index, file in enumerate(form.screenshots.data):
-                filepath = f'{folder_name}/screenshots/{secure_filename(file.filename)}'
-                blob = bucket.blob(filepath)
-                blob.upload_from_string(file.stream.read())
+            for index, screenshot_file in enumerate(form.screenshots.data):
+                blob = bucket.blob(f'{folder}/screenshots/{index}{os.path.splitext(screenshot_file.filename)[1]}')
+                blob.upload_from_string(screenshot_file.read(), content_type=screenshot_file.mimetype)
                 screenshot = Screenshot(url=blob.public_url, order=index, game=game)
                 db.session.add(screenshot)
 

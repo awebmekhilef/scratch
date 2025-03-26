@@ -2,8 +2,7 @@ from typing import Optional, List
 from datetime import datetime, timezone
 from hashlib import md5
 from slugify import slugify
-from markdown import markdown
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import Mapped, WriteOnlyMapped, mapped_column, relationship, validates
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,10 +11,10 @@ from app import db, login
 
 class User(UserMixin, db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(128), unique=True, index=True)
-    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    email: Mapped[str] = mapped_column(String(200), unique=True, index=True)
+    username: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     password_hash: Mapped[Optional[str]] = mapped_column(String(256))
-    website: Mapped[Optional[str]] = mapped_column(String(128))
+    website: Mapped[Optional[str]] = mapped_column(String(100))
     about: Mapped[Optional[str]] = mapped_column(String(5000))
 
     games: WriteOnlyMapped['Game'] = relationship(back_populates='creator')
@@ -49,8 +48,8 @@ game_tag = Table(
 
 class Game(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    slug: Mapped[str] = mapped_column(String(128))
-    title: Mapped[str] = mapped_column(String(128))
+    slug: Mapped[str] = mapped_column(String(50))
+    title: Mapped[str] = mapped_column(String(50))
     tagline: Mapped[Optional[str]] = mapped_column(String(150))
     description: Mapped[Optional[str]] = mapped_column(String(5000))
     cover_url: Mapped[str] = mapped_column(String(256))
@@ -59,17 +58,14 @@ class Game(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)
 
     creator: Mapped[User] = relationship(back_populates='games')
-    upload: Mapped['Upload'] = relationship(back_populates='game')
+    uploads: WriteOnlyMapped['Upload'] = relationship(back_populates='game')
     screenshots: WriteOnlyMapped['Screenshot'] = relationship(back_populates='game')
-    tags: Mapped[List['Tag']] = relationship(secondary=game_tag)
+    tags: Mapped[List['Tag']] = relationship(secondary=game_tag, back_populates='games')
 
     @validates('title')
-    def _generate_slug(self, key, title):
+    def validate_title(self, key, title):
         self.slug = slugify(title)
         return title
-
-    def markdown(self):
-        return markdown(self.description)
 
     def __repr__(self):
         return f'<Game \'{self.title}\'>'
@@ -78,11 +74,12 @@ class Game(db.Model):
 class Upload(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     url: Mapped[str] = mapped_column(String(256))
-    size: Mapped[int] = mapped_column(Integer())
-    web_build: Mapped[bool] = mapped_column(Boolean())
+    filename: Mapped[str] = mapped_column(String(256))
+    size: Mapped[int]
+    is_web_build: Mapped[bool]
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
-    game: Mapped[Game] = relationship(back_populates='upload')
+    game: Mapped[Game] = relationship(back_populates='uploads')
 
     def __repr__(self):
         return f'<Upload \'{self.url}\'>'
@@ -91,7 +88,7 @@ class Upload(db.Model):
 class Screenshot(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     url: Mapped[str] = mapped_column(String(256))
-    order: Mapped[int] = mapped_column(Integer())
+    order: Mapped[int]
     game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
 
     game: Mapped[Game] = relationship(back_populates='screenshots')
@@ -102,4 +99,6 @@ class Screenshot(db.Model):
 
 class Tag(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(32))
+    name: Mapped[str] = mapped_column(String(20))
+
+    games: WriteOnlyMapped[Game] = relationship(secondary=game_tag, back_populates='tags')

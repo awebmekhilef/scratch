@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, MultipleFileField, FileRequired, FileAllowed
-from wtforms import StringField, TextAreaField, BooleanField, SubmitField
+from flask_wtf.file import FileField, MultipleFileField, FileAllowed
+from wtforms import StringField, TextAreaField, HiddenField, SubmitField
 from wtforms.validators import DataRequired, URL
 
 
@@ -15,8 +15,8 @@ class EditGameForm(FlaskForm):
     tagline = StringField('Tagline')
     tags = StringField('Tags')
     description = TextAreaField('Description')
-    upload = FileField('Game File Upload')
-    web_build = BooleanField("Web build")
+    uploads = MultipleFileField('Uploads')
+    uploads_metadata = HiddenField('')
     cover = FileField('Cover Image')
     screenshots = MultipleFileField('Screenshots', validators=[FileAllowed(['png', 'jpg', 'jpeg'])])
     submit = SubmitField('Save')

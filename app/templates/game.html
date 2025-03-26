@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% if game.upload.web_build %}
-        <iframe src="{{ game.upload.url }}" frameborder="0" allowfullscreen="true" class="d-block mx-auto" width="1280" height="720"></iframe>
-    {% endif %}
+    {% for upload in uploads %}
+        {% if upload.is_web_build %}
+            <iframe src="{{ upload.url }}" frameborder="0" allowfullscreen="true" class="d-block mx-auto" width="1280" height="720"></iframe>
+        {% endif %}
+    {% endfor %}
     <div class="row">
         <div class="col-md-8">
             <h1>
@@ -16,7 +18,7 @@
             {% endif %}
             {% if game.description %}
                 <p>
-                    {{ game.markdown() | safe }}
+                    {{ game | markdown | safe }}
                 </p>
             {% endif %}
             <p>
@@ -25,9 +27,14 @@
             <p>
                 Updated: {{ moment(game.updated_at).format('LL') }} ({{ moment(game.updated_at).fromNow() }})
             </p>
-            {% if not game.upload.web_build %}
-                <a class="btn btn-primary btn-lg" href="{{ game.upload.url }}" role="button">Download</a>
-            {% endif %}
+            {% for upload in uploads %}
+                {% if not upload.is_web_build %}
+                    <p>
+                        {{ upload.filename }}
+                    </p>
+                    <a class="btn btn-primary btn-lg" href="{{ upload.url }}" target="_blank">Download</a>
+                {% endif %}
+            {% endfor %}
             <p>
                 <a href="{{ url_for('main.user', username=game.creator.username) }}">View creator</a>
             </p>

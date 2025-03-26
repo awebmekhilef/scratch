@@ -1,10 +1,11 @@
+import firebase_admin
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_moment import Moment
 from firebase_admin import credentials
-import firebase_admin
+from app.filters import markdown_filter
 
 db = SQLAlchemy()
 login = LoginManager()
@@ -21,11 +22,6 @@ def create_app():
     login.init_app(app)
     moment.init_app(app)
 
-    cred = credentials.Certificate(app.config['GOOGLE_APPLICATION_CREDENTIALS'])
-    firebase_admin.initialize_app(cred, {
-        'storageBucket': app.config['FIREBASE_STORAGE_BUCKET']
-    })
-
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
 
@@ -35,6 +31,13 @@ def create_app():
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
     
+    cred = credentials.Certificate(app.config['GOOGLE_APPLICATION_CREDENTIALS'])
+    firebase_admin.initialize_app(cred, {
+        'storageBucket': app.config['FIREBASE_STORAGE_BUCKET']
+    })
+
+    app.jinja_env.filters['markdown'] = markdown_filter
+
     with app.app_context():
         db.create_all()
 
