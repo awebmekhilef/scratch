@@ -1,15 +1,19 @@
-{% macro form_field(field, autofocus=False, class='') %}
+{% macro form_field(field, autofocus=False, class='', skip_label=False, placeholder='') %}
     {%- if field.type == 'HiddenField' %}
         {{ field() }}
     {%- elif field.type == 'BooleanField' %}
         <div class="form-check mb-3">
             {{ field(class='form-check-input' + ' ' + class) }}
-            {{ field.label(class='form-check-label') }}
+            {%- if not skip_label -%}
+                {{ field.label(class='form-check-label') }}
+            {%- endif -%}
         </div>
     {%- elif field.type == 'TextAreaField' %}
         <div class="mb-3">
-            {{ field.label(class='form-label') }}
-            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + class ) }}
+            {%- if not skip_label -%}
+                {{ field.label(class='form-check-label') }}
+            {%- endif -%}
+            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + class, rows=10, autofocus=autofocus, placeholder=placeholder) }}
             {%- for error in field.errors %}
                 <div class="invalid-feedback">
                     {{ error }}
@@ -20,8 +24,10 @@
         {{ field(class='btn btn-primary mb-3' + ' ' + class) }}
     {%- elif field.type == 'FileField' %}
         <div class="mb-3">
-            {{ field.label(class='form-label') }}
-            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + class ) }}
+            {%- if not skip_label -%}
+                {{ field.label(class='form-check-label') }}
+            {%- endif -%}
+            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + class) }}
             {%- for error in field.errors %}
                 <div class="invalid-feedback">
                     {{ error }}
@@ -30,8 +36,10 @@
         </div>
     {%- else %}
         <div class="mb-3">
-            {{ field.label(class='form-label') }}
-            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + class , autofocus=autofocus) }}
+            {%- if not skip_label -%}
+                {{ field.label(class='form-check-label') }}
+            {%- endif -%}
+            {{ field(class='form-control' + (' is-invalid' if field.errors else '') + ' ' + class, autofocus=autofocus, placeholder=placeholder) }}
             {%- for error in field.errors %}
                 <div class="invalid-feedback">
                     {{ error }}

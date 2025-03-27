@@ -20,3 +20,8 @@ class EditGameForm(FlaskForm):
     cover = FileField('Cover Image')
     screenshots = MultipleFileField('Screenshots', validators=[FileAllowed(['png', 'jpg', 'jpeg'])])
     submit = SubmitField('Save')
+
+
+class CommentForm(FlaskForm):
+    comment = StringField('Comment', validators=[DataRequired()])
+    submit = SubmitField('Post')

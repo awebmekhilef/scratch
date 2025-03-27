@@ -61,6 +61,7 @@ class Game(db.Model):
     uploads: WriteOnlyMapped['Upload'] = relationship(back_populates='game')
     screenshots: WriteOnlyMapped['Screenshot'] = relationship(back_populates='game')
     tags: Mapped[List['Tag']] = relationship(secondary=game_tag, back_populates='games')
+    comments: WriteOnlyMapped['Comment'] = relationship(back_populates='game')
 
     @validates('title')
     def validate_title(self, key, title):
@@ -102,3 +103,14 @@ class Tag(db.Model):
     name: Mapped[str] = mapped_column(String(20))
 
     games: WriteOnlyMapped[Game] = relationship(secondary=game_tag, back_populates='tags')
+
+
+class Comment(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    text: Mapped[str] = mapped_column(String(500))
+    created_at: Mapped[datetime] = mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
+    game_id: Mapped[int] = mapped_column(ForeignKey(Game.id), index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey(User.id), index=True)
+
+    game: Mapped[Game] = relationship(back_populates='comments')
+    author: Mapped[User] = relationship()

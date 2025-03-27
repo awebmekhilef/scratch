@@ -10,8 +10,8 @@ from werkzeug.utils import secure_filename
 from firebase_admin import storage
 from app import db
 from app.main import bp
-from app.main.forms import ProfileSettingsForm, EditGameForm
-from app.models import User, Game, Upload, Screenshot, Tag
+from app.main.forms import ProfileSettingsForm, EditGameForm, CommentForm
+from app.models import User, Game, Upload, Screenshot, Tag, Comment
 
 
 @bp.route('/')
@@ -51,7 +51,9 @@ def game(id, slug):
         return redirect(url_for('main.game', id=game.id, slug=game.slug))
     uploads = db.session.scalars(game.uploads.select()).all()
     screenshots = db.session.scalars(game.screenshots.select().order_by(Screenshot.order.asc())).all()
-    return render_template('game.html', game=game, uploads=uploads, screenshots=screenshots)
+    comments = db.session.scalars(game.comments.select().order_by(Comment.created_at.desc())).all()
+    form = CommentForm()
+    return render_template('game.html', game=game, uploads=uploads, screenshots=screenshots, comments=comments, form=form)
 
 
 @bp.route('/game/new', methods=['GET', 'POST'])
@@ -156,3 +158,19 @@ def edit_game(id):
         form.tagline.data = game.tagline
         form.description.data = game.description
     return render_template('edit_game.html', form=form, game=game)
+
+
+@bp.route('/comment/<game_id>', methods=['POST'])
+@login_required
+def comment(game_id):
+    form = CommentForm()
+    if form.validate_on_submit():
+        game = db.session.scalar(db.select(Game).where(Game.id == game_id))
+        if not game:
+            flash('Game not found')
+            return redirect(url_for('index'))
+        print(form.comment.data)
+        comment = Comment(text=form.comment.data, game=game, author=current_user)
+        db.session.add(comment)
+        db.session.commit()
+    return redirect(url_for('main.game', id=game_id))
