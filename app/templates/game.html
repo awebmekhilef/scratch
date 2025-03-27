@@ -49,15 +49,37 @@
                             {{ game.description | markdown | safe }}
                         </p>
                     {% endif %}
-                    <p>
-                        Created: {{ moment(game.created_at).format('LL') }} ({{ moment(game.created_at).fromNow() }})
-                    </p>
-                    <p>
-                        Updated: {{ moment(game.updated_at).format('LL') }} ({{ moment(game.updated_at).fromNow() }})
-                    </p>
+                    <div class="accordion" id="more-information-accordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-one">
+                                    More Information
+                                </button>
+                            </h2>
+                            <div id="collapse-one" class="accordion-collapse collapse" data-bs-parent="#more-information-accordion">
+                                <div class="accordion-body">
+                                    <p>
+                                        <strong>Created:</strong> {{ moment(game.created_at).format('LL') }} ({{ moment(game.created_at).fromNow() }})
+                                    </p>
+                                    <p>
+                                        <strong>Updated:</strong> {{ moment(game.updated_at).format('LL') }} ({{ moment(game.updated_at).fromNow() }})
+                                    </p>
+                                    <p>
+                                        <strong>Creator: </strong> <a href="{{ url_for('main.user', username=game.creator.username) }}">{{ game.creator.username }}</a>
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Tags: </strong>
+                                        {% for tag in game.tags %}
+                                            <a href="#">#{{ tag.name }}</a>
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {% for upload in uploads %}
                         {% if not upload.is_web_build %}
-                            <div class="hstack gap-3">
+                            <div class="hstack gap-3 mt-3">
                                 <a class="btn btn-primary btn-lg" href="{{ upload.url }}" target="_blank">Download</a>
                                 <ul class="list-unstyled my-auto">
                                     <li>
@@ -70,20 +92,21 @@
                             </div>
                         {% endif %}
                     {% endfor %}
-                    <p>
-                        <a href="{{ url_for('main.user', username=game.creator.username) }}">View creator</a>
-                    </p>
-                    {% if game.creator == current_user %}
-                        <p>
-                            <a href="{{ url_for('main.edit_game', id=game.id) }}">Edit game</a>
-                        </p>
-                    {% endif %}
                 </div>
                 <div class="col-lg-4 d-lg-block d-none">
                     {% for screenshot in screenshots %}
                         <img src="{{ screenshot.url }}" class="mt-3 w-100" alt="Screenshot {{ screenshot.order }}">
                     {% endfor %}
                 </div>
+                <div class="hstack mt-5 p-2 small">
+                    <div>
+                        <a href="{{ url_for('main.user', username=game.creator.username) }}">View all by {{ game.creator.username }}</a>
+                    </div>
+                    <div class="p-2 ms-auto">
+                        Updated {{ moment(game.updated_at).format('LL') }}
+                    </div>
+                </div>
             </div>
         </div>
-    {% endblock content %}
+    </div>
+{% endblock content %}
