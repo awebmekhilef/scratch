@@ -59,4 +59,4 @@ def password():
         else:
             flash('Current password is incorrect')
         return redirect(url_for('auth.password'))
-    return render_template('settings_password.html', form=form)
+    return render_template('settings_password.html', form=form, active_page='password')

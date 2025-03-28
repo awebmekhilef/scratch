@@ -40,7 +40,7 @@ def settings():
     elif request.method == 'GET':
         form.website.data = current_user.website
         form.about.data = current_user.about
-    return render_template('settings_profile.html', form=form)
+    return render_template('settings_profile.html', form=form, active_page='profile')
 
 
 @bp.route('/game/<id>', defaults={'slug': None})
