@@ -118,12 +118,14 @@
                                 <div class="ms-3 me-auto small">
                                     {{ moment(comment.created_at).fromNow() }}
                                 </div>
-                                <div>
-                                    <form action="{{ url_for('main.delete_comment', id=comment.id) }}" method="post" novalidate>
-                                        {{ delete_comment_form.hidden_tag() }}
-                                        {{ form_field(delete_comment_form.submit, value='Delete', class='btn-link btn-sm text-secondary') }}
-                                    </form>
-                                </div>
+                                {% if comment.author == current_user or comment.game.creator == current_user %}
+                                    <div>
+                                        <form action="{{ url_for('main.delete_comment', id=comment.id) }}" method="post" novalidate>
+                                            {{ delete_comment_form.hidden_tag() }}
+                                            {{ form_field(delete_comment_form.submit, value='Delete', class='btn-link btn-sm text-secondary') }}
+                                        </form>
+                                    </div>
+                                {% endif %}
                             </div>
                             <p class="ms-5">
                                 {{ comment.text }}
