@@ -1,9 +1,9 @@
 from urllib.parse import urlsplit
 from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.auth import bp
-from app.auth.forms import LoginForm, RegisterForm
+from app.auth.forms import LoginForm, RegisterForm, UpdatePasswordForm
 from app.models import User
 
 
@@ -45,3 +45,18 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+
+@bp.route('/settings/password', methods=['GET', 'POST'])
+@login_required
+def password():
+    form = UpdatePasswordForm()
+    if form.validate_on_submit():
+        if current_user.check_password(form.current_password.data):
+            current_user.set_password(form.new_password.data)
+            db.session.commit()
+            flash('Your password has been successfully changed')
+        else:
+            flash('Current password is incorrect')
+        return redirect(url_for('auth.password'))
+    return render_template('settings_password.html', form=form)
