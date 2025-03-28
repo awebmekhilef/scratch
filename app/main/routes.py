@@ -179,7 +179,7 @@ def delete_comment(id):
     form = EmptyForm()
     if form.validate_on_submit():
         comment = db.first_or_404(db.select(Comment).where(Comment.id == id))
-        if comment.author != current_user or comment.game.creator != current_user:
+        if comment.author != current_user and comment.game.creator != current_user:
             return redirect(url_for('main.index'))
         db.session.delete(comment)
         db.session.commit()
