@@ -94,35 +94,41 @@
                             </div>
                         {% endif %}
                     {% endfor %}
-                    <h2 class="mt-3">
+                    <h2 id='comments' class="mt-3">
                         Comments
                     </h2>
                     <form action="{{ url_for('main.comment', game_id=game.id) }}" method="post" novalidate>
-                        {{ form.hidden_tag() }}
+                        {{ comment_form.hidden_tag() }}
                         <div class="hstack gap-3">
                             <div class="w-100">
-                                {{ form_field(form.comment, skip_label=True, placeholder='Write your comment...') }}
+                                {{ form_field(comment_form.comment, skip_label=True, placeholder='Write your comment...') }}
                             </div>
-                            {{ form_field(form.submit) }}
+                            {{ form_field(comment_form.submit, class='btn-primary') }}
                         </div>
                     </form>
                     {% for comment in comments %}
-                    <div>
-                        <div class="d-flex align-items-center">
-                            <div class="flex-shrink-0">
-                                <img src="{{ comment.author.avatar(32) }}" alt="{{ comment.author.username }} avatar">
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <img src="{{ comment.author.avatar(32) }}" alt="{{ comment.author.username }} avatar">
+                                </div>
+                                <div class="ms-3">
+                                    <a href="{{ url_for('main.user', username=game.creator.username) }}">{{ game.creator.username }}</a>
+                                </div>
+                                <div class="ms-3 me-auto small">
+                                    {{ moment(comment.created_at).fromNow() }}
+                                </div>
+                                <div>
+                                    <form action="{{ url_for('main.delete_comment', id=comment.id) }}" method="post" novalidate>
+                                        {{ delete_comment_form.hidden_tag() }}
+                                        {{ form_field(delete_comment_form.submit, value='Delete', class='btn-link btn-sm text-secondary') }}
+                                    </form>
+                                </div>
                             </div>
-                            <div class="ms-3">
-                                <a href="{{ url_for('main.user', username=game.creator.username) }}">{{ game.creator.username }}</a>
-                            </div>
-                            <div class="ms-3 small">
-                                {{ moment(comment.created_at).fromNow() }}
-                            </div>
+                            <p class="ms-5">
+                                {{ comment.text }}
+                            </p>
                         </div>
-                        <p class="ms-5">
-                            {{ comment.text }}
-                        </p>
-                    </div>
                     {% endfor %}
                 </div>
                 <div class="col-lg-4 d-lg-block d-none">

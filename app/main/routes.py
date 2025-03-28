@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from firebase_admin import storage
 from app import db
 from app.main import bp
-from app.main.forms import ProfileSettingsForm, EditGameForm, CommentForm
+from app.main.forms import ProfileSettingsForm, EditGameForm, CommentForm, EmptyForm
 from app.models import User, Game, Upload, Screenshot, Tag, Comment
 
 
@@ -52,8 +52,9 @@ def game(id, slug):
     uploads = db.session.scalars(game.uploads.select()).all()
     screenshots = db.session.scalars(game.screenshots.select().order_by(Screenshot.order.asc())).all()
     comments = db.session.scalars(game.comments.select().order_by(Comment.created_at.desc())).all()
-    form = CommentForm()
-    return render_template('game.html', game=game, uploads=uploads, screenshots=screenshots, comments=comments, form=form)
+    comment_form = CommentForm()
+    delete_comment_form = EmptyForm()
+    return render_template('game.html', game=game, uploads=uploads, screenshots=screenshots, comments=comments, comment_form=comment_form, delete_comment_form=delete_comment_form)
 
 
 @bp.route('/game/new', methods=['GET', 'POST'])
@@ -165,12 +166,19 @@ def edit_game(id):
 def comment(game_id):
     form = CommentForm()
     if form.validate_on_submit():
-        game = db.session.scalar(db.select(Game).where(Game.id == game_id))
-        if not game:
-            flash('Game not found')
-            return redirect(url_for('index'))
-        print(form.comment.data)
+        game = db.first_or_404(db.select(Game).where(Game.id == game_id))
         comment = Comment(text=form.comment.data, game=game, author=current_user)
         db.session.add(comment)
         db.session.commit()
-    return redirect(url_for('main.game', id=game_id))
+    return redirect(url_for('main.game', id=game_id, _anchor='comments'))
+
+
+@bp.route('/delete_comment/<id>', methods=['POST'])
+@login_required
+def delete_comment(id):
+    form = EmptyForm()
+    if form.validate_on_submit():
+        comment = db.first_or_404(db.select(Comment).where(Comment.id == id))
+        db.session.delete(comment)
+        db.session.commit()
+    return redirect(url_for('main.game', id=comment.game_id, _anchor='comments'))

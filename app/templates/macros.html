@@ -1,4 +1,4 @@
-{% macro form_field(field, autofocus=False, class='', skip_label=False, placeholder='') %}
+{% macro form_field(field, autofocus=False, class='', skip_label=False, placeholder='', value='') %}
     {%- if field.type == 'HiddenField' %}
         {{ field() }}
     {%- elif field.type == 'BooleanField' %}
@@ -21,7 +21,7 @@
             {%- endfor %}
         </div>
     {%- elif field.type == 'SubmitField' %}
-        {{ field(class='btn btn-primary mb-3' + ' ' + class) }}
+        {{ field(class='btn mb-3' + ' ' + class, value = (value if value else field.label.text)) }}
     {%- elif field.type == 'FileField' %}
         <div class="mb-3">
             {%- if not skip_label -%}

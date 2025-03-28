@@ -13,7 +13,7 @@
             {{ form_field(form.username, autofocus=true) }}
             {{ form_field(form.password) }}
             {{ form_field(form.remember) }}
-            {{ form_field(form.submit, class='w-100') }}
+            {{ form_field(form.submit, class='btn-primary w-100') }}
             <p class="text-center">
                 <a href="{{ url_for('auth.register') }}">Create account</a>
                 •

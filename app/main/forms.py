@@ -25,3 +25,7 @@ class EditGameForm(FlaskForm):
 class CommentForm(FlaskForm):
     comment = StringField('Comment', validators=[DataRequired()])
     submit = SubmitField('Post')
+
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
