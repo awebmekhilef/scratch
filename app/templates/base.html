@@ -50,10 +50,10 @@
             </div>
         </nav>
         <div class="container mt-3">
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    {% for msg in messages %}
-                        <div class="alert alert-info" role="alert">
+                    {% for category, msg in messages %}
+                        <div class="alert alert-{% if category == 'error' %}danger{% else %}info{% endif %}" role="alert">
                             {{ msg }}
                         </div>
                     {% endfor %}

@@ -19,7 +19,7 @@ def login():
     if form.validate_on_submit():
         user = db.session.scalar(db.select(User).where(User.username == form.username.data))
         if not user or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash('Invalid username or password', 'error')
             return redirect(url_for('auth.login'))
         if user.is_2fa_enabled:
             session['username'] = user.username
@@ -43,7 +43,7 @@ def verify_totp():
             login_user(user, remember=session.get('remember', False))
             return redirect(url_for('main.index'))
         else:
-            flash('Invalid OTP token')
+            flash('Invalid OTP token', 'error')
             return redirect(url_for('auth.verify_totp'))
     return render_template('/auth/verify_2fa.html', form=form, user=user)
 
@@ -80,7 +80,7 @@ def password():
             db.session.commit()
             flash('Your password has been successfully changed')
         else:
-            flash('Current password is incorrect')
+            flash('Current password is incorrect' 'error')
         return redirect(url_for('auth.password'))
     return render_template('settings_password.html', form=form, active_page='password')
 
@@ -96,7 +96,7 @@ def two_factor_auth_setup():
             db.session.commit()
             flash('Two factor authentication has been enabled')
         else:
-            flash('Invalid OTP token')
+            flash('Invalid OTP token', 'error')
         return redirect(url_for('auth.two_factor_auth_setup'))
     elif disable_2fa_from.validate_on_submit():
         current_user.is_2fa_enabled = False

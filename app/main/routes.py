@@ -80,7 +80,7 @@ def new_game():
 
                 if is_web_build:
                     if os.path.splitext(upload_file.filename)[1] != '.zip':
-                        flash('Only .zip files are allowed for web builds')
+                        flash('Only .zip files are allowed for web builds', 'error')
                         return render_template('edit_game.html', form=form)
 
                     with tempfile.TemporaryDirectory() as tmp_dir:
