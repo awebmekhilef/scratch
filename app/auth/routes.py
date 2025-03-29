@@ -7,7 +7,7 @@ from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.auth import bp
-from app.auth.forms import LoginForm, RegisterForm, UpdatePasswordForm, TwoFactorAuthForm
+from app.auth.forms import LoginForm, RegisterForm, UpdatePasswordForm, TwoFactorAuthForm, EmptyForm
 from app.models import User
 
 
@@ -88,20 +88,28 @@ def password():
 @bp.route('/settings/two-factor-auth', methods=['GET', 'POST'])
 @login_required
 def two_factor_auth_setup():
-    form = TwoFactorAuthForm()
-    if form.validate_on_submit():
-        if current_user.verify_totp(form.token.data):
+    two_factor_auth_form = TwoFactorAuthForm()
+    disable_2fa_from = EmptyForm()
+    if two_factor_auth_form.validate_on_submit():
+        if current_user.verify_totp(two_factor_auth_form.token.data):
             current_user.is_2fa_enabled = True
             db.session.commit()
             flash('Two factor authentication has been enabled')
         else:
             flash('Invalid OTP token')
         return redirect(url_for('auth.two_factor_auth_setup'))
+    elif disable_2fa_from.validate_on_submit():
+        current_user.is_2fa_enabled = False
+        db.session.commit()
+        flash('Two factor authentication has been disabled')
+        return redirect(url_for('auth.two_factor_auth_setup'))
     img = qrcode.make(current_user.get_totp_url(), image_factory=qrcode.image.svg.SvgImage, border=0)
     buffer = BytesIO()
     img.save(buffer)
     qrcode_data = b64encode(buffer.getvalue()).decode('utf-8')
-    return render_template('settings_2fa.html', active_page='2fa', form=form, qrcode_data=qrcode_data), 200, {
+    return render_template('settings_2fa.html', active_page='2fa', 
+                           two_factor_auth_form=two_factor_auth_form, qrcode_data=qrcode_data, 
+                           disable_2fa_from=disable_2fa_from), 200, {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0'

@@ -24,9 +24,14 @@
             Otherwise enter the secret manually: {{ current_user.otp_secret }}
         </p>
         <form action="" method="post" novalidate>
-            {{ form.hidden_tag() }}
-            {{ form_field(form.token, placeholder='123456') }}
-            {{ form_field(form.submit, class='btn-primary') }}
+            {{ two_factor_auth_form.hidden_tag() }}
+            {{ form_field(two_factor_auth_form.token, placeholder='123456') }}
+            {{ form_field(two_factor_auth_form.submit, class='btn-primary') }}
+        </form>
+    {% else %}
+        <form action="" method="post" novalidate>
+            {{ disable_2fa_from.hidden_tag() }}
+            {{ form_field(disable_2fa_from.submit, value='Disable', class='btn-danger') }}
         </form>
     {% endif %}
 {% endblock settings %}

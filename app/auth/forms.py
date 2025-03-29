@@ -40,3 +40,7 @@ class UpdatePasswordForm(FlaskForm):
 class TwoFactorAuthForm(FlaskForm):
     token = StringField('OTP token', validators=[DataRequired(), Length(6, 6)])
     submit = SubmitField('Submit')
+
+
+class EmptyForm(FlaskForm):
+    submit = SubmitField('Submit')
