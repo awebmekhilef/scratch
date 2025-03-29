@@ -6,7 +6,7 @@
             <div class="list-group mb-3">
                 <a href="{{ url_for('main.settings') }}" class="list-group-item list-group-item-action {% if active_page == 'profile' %}active{% endif %}">Profile</a>
                 <a href="{{ url_for('auth.password') }}" class="list-group-item list-group-item-action {% if active_page == 'password' %}active{% endif %}">Password</a>
-                <a href="#" class="list-group-item list-group-item-action">Two-factor authentication</a>
+                <a href="{{ url_for('auth.two_factor_auth_setup') }}" class="list-group-item list-group-item-action {% if active_page == '2fa' %}active{% endif %}">Two-factor authentication</a>
                 <a href="#" class="list-group-item list-group-item-action">Data export</a>
                 <a href="#" class="list-group-item list-group-item-action">Delete account</a>
             </div>

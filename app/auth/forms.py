@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 from app import db
 from app.models import User
 
@@ -34,4 +34,9 @@ class UpdatePasswordForm(FlaskForm):
     current_password = PasswordField('Current Password', validators=[DataRequired()])
     new_password = PasswordField('New Password', validators=[DataRequired()])
     confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('Submit')
+
+
+class TwoFactorAuthForm(FlaskForm):
+    token = StringField('OTP token', validators=[DataRequired(), Length(6, 6)])
     submit = SubmitField('Submit')

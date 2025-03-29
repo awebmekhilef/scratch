@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% from "macros.html" import form_field %}
+
+{% block content %}
+    <div class="m-auto auth-form-container">
+        <h2 class="text-center">
+            Two-factor authentication
+        </h2>
+        <hr>
+        <p><strong>Logging in as</strong> <img src="{{ user.avatar(16) }}" alt="Profile picture"> {{ user.username }}</p>
+        <p>Please enter the OTP token shown on your authenticator to continue logging in.</p>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ form_field(form.token, autofocus=true, placeholder='XXXXXX') }}
+            {{ form_field(form.submit, class='btn-primary w-100') }}
+        </form>
+    </div>
+{% endblock content %}

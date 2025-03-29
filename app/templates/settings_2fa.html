@@ -1,0 +1,32 @@
+{% extends "settings.html" %}
+
+{% from "macros.html" import form_field %}
+
+{% block settings %}
+    <h1>
+        Two-factor authentication
+    </h1>
+    <hr>
+    <p>
+        Status:
+        {% if current_user.is_2fa_enabled %}
+            <span class="text-success"><strong>ON</strong></span>
+        {% else %}
+            <span class="text-danger"><strong>OFF</strong></span>
+        {% endif %}
+    </p>
+    {% if not current_user.is_2fa_enabled %}
+        <p>
+            Scan the QR code and enter the 6 digit verification code.
+        </p>
+        <img class="mt-2 mb-3" src="data:image/svg+xml;base64,{{ qrcode_data }}" alt="2FA QR code">
+        <p>
+            Otherwise enter the secret manually: {{ current_user.otp_secret }}
+        </p>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ form_field(form.token, placeholder='123456') }}
+            {{ form_field(form.submit, class='btn-primary') }}
+        </form>
+    {% endif %}
+{% endblock settings %}

@@ -50,10 +50,12 @@ pyasn1==0.6.1
 pyasn1_modules==0.4.1
 pycparser==2.22
 PyJWT==2.10.1
+pyotp==2.9.0
 pyparsing==3.2.1
 python-dotenv==1.0.1
 python-slugify==8.0.4
 PyYAML==6.0.2
+qrcode==8.0
 regex==2024.11.6
 requests==2.32.3
 rsa==4.9

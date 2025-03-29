@@ -1,9 +1,13 @@
+import qrcode
+import qrcode.image.svg
+from io import BytesIO
+from base64 import b64encode
 from urllib.parse import urlsplit
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.auth import bp
-from app.auth.forms import LoginForm, RegisterForm, UpdatePasswordForm
+from app.auth.forms import LoginForm, RegisterForm, UpdatePasswordForm, TwoFactorAuthForm
 from app.models import User
 
 
@@ -17,12 +21,31 @@ def login():
         if not user or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('auth.login'))
+        if user.is_2fa_enabled:
+            session['username'] = user.username
+            session['remember'] = form.remember.data
+            return redirect(url_for('auth.verify_totp'))
         login_user(user, remember=form.remember.data)
-        next_page = request.args.get('next')
-        if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('main.index')
-        return redirect(next_page)
+        return redirect(url_for('main.index'))
     return render_template('auth/login.html', form=form)
+
+
+@bp.route('/login/verify-totp', methods=['GET', 'POST'])
+def verify_totp():
+    form = TwoFactorAuthForm()
+    if 'username' not in session:
+        return redirect(url_for('auth.login'))
+    user = db.session.scalar(db.select(User).where(User.username == session['username']))
+    if not user:
+        return redirect(url_for('auth.login'))
+    if form.validate_on_submit():
+        if user.verify_totp(form.token.data):
+            login_user(user, remember=session.get('remember', False))
+            return redirect(url_for('main.index'))
+        else:
+            flash('Invalid OTP token')
+            return redirect(url_for('auth.verify_totp'))
+    return render_template('/auth/verify_2fa.html', form=form, user=user)
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -60,3 +83,26 @@ def password():
             flash('Current password is incorrect')
         return redirect(url_for('auth.password'))
     return render_template('settings_password.html', form=form, active_page='password')
+
+
+@bp.route('/settings/two-factor-auth', methods=['GET', 'POST'])
+@login_required
+def two_factor_auth_setup():
+    form = TwoFactorAuthForm()
+    if form.validate_on_submit():
+        if current_user.verify_totp(form.token.data):
+            current_user.is_2fa_enabled = True
+            db.session.commit()
+            flash('Two factor authentication has been enabled')
+        else:
+            flash('Invalid OTP token')
+        return redirect(url_for('auth.two_factor_auth_setup'))
+    img = qrcode.make(current_user.get_totp_url(), image_factory=qrcode.image.svg.SvgImage, border=0)
+    buffer = BytesIO()
+    img.save(buffer)
+    qrcode_data = b64encode(buffer.getvalue()).decode('utf-8')
+    return render_template('settings_2fa.html', active_page='2fa', form=form, qrcode_data=qrcode_data), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+    }
