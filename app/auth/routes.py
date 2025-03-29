@@ -99,10 +99,11 @@ def two_factor_auth_setup():
             flash('Invalid OTP token', 'error')
         return redirect(url_for('auth.two_factor_auth_setup'))
     elif disable_2fa_from.validate_on_submit():
-        current_user.is_2fa_enabled = False
-        db.session.commit()
-        flash('Two factor authentication has been disabled')
-        return redirect(url_for('auth.two_factor_auth_setup'))
+        if current_user.is_2fa_enabled:
+            current_user.is_2fa_enabled = False
+            db.session.commit()
+            flash('Two factor authentication has been disabled')
+            return redirect(url_for('auth.two_factor_auth_setup'))
     img = qrcode.make(current_user.get_totp_url(), image_factory=qrcode.image.svg.SvgImage, border=0)
     buffer = BytesIO()
     img.save(buffer)
