@@ -62,6 +62,10 @@ def game(id, slug):
 def new_game():
     form = EditGameForm()
     if form.validate_on_submit():
+        if not form.cover.data:
+            flash('Cover image is required')
+            return render_template('edit_game.html', form=form)
+        
         game = Game(
             title=form.title.data,
             tagline=form.tagline.data,
