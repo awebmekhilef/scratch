@@ -4,20 +4,38 @@ import uuid
 import tempfile
 import zipfile
 import mimetypes
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, current_app, request, g
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from firebase_admin import storage
 from app import db
 from app.main import bp
-from app.main.forms import ProfileSettingsForm, EditGameForm, CommentForm, EmptyForm
+from app.main.forms import ProfileSettingsForm, EditGameForm, CommentForm, SearchForm, EmptyForm
 from app.models import User, Game, Upload, Screenshot, Tag, Comment
+
+
+@bp.before_app_request
+def before_requrest():
+    g.search_form = SearchForm()
 
 
 @bp.route('/')
 def index():
     games = db.session.scalars(db.select(Game).order_by(Game.created_at.desc())).all()
     return render_template('index.html', games=games)
+
+
+@bp.route('/search')
+def search():
+    if not g.search_form.validate():
+        return redirect(url_for('main.index'))
+    page = request.args.get('page', 1, type=int)
+    games, total = Game.search(g.search_form.q.data, page, current_app.config['RESULTS_PER_PAGE'])
+    next_url = url_for('main.search', q=g.search_form.q.data, page=page + 1) \
+        if total > page * current_app.config['RESULTS_PER_PAGE'] else None
+    prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \
+        if page > 1 else None
+    return render_template('search.html', games=games, next_url=next_url, prev_url=prev_url)
 
 
 @bp.route('/user/<username>')
@@ -65,7 +83,7 @@ def new_game():
         if not form.cover.data:
             flash('Cover image is required')
             return render_template('edit_game.html', form=form)
-        
+
         game = Game(
             title=form.title.data,
             tagline=form.tagline.data,

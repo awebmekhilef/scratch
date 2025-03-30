@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>
+        Search results for '{{ g.search_form.q.data }}'
+    </h1>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
+        {% for game in games %}
+            <div class="col">
+                {% include "game_tile.html" %}
+
+            </div>
+        {% endfor %}
+    </div>
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            <li class="page-item{% if not prev_url %} disabled{% endif %}">
+                <a class="page-link" href="{{ prev_url }}">Previous</a>
+            </li>
+            <li class="page-item{% if not next_url %} disabled{% endif %}">
+                <a class="page-link" href="{{ next_url }}">Next</a>
+            </li>
+        </ul>
+    </nav>
+{% endblock content %}

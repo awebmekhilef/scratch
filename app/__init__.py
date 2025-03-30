@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_moment import Moment
 from firebase_admin import credentials
+from elasticsearch import Elasticsearch
 from app.filters import markdown_filter
 
 db = SQLAlchemy()
@@ -30,18 +31,18 @@ def create_app():
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
-    
+
     cred = credentials.Certificate(app.config['GOOGLE_APPLICATION_CREDENTIALS'])
     firebase_admin.initialize_app(cred, {
         'storageBucket': app.config['FIREBASE_STORAGE_BUCKET']
     })
 
+    app.elasticsearch = Elasticsearch(app.config['ELASTICSEARCH_URL']) \
+        if app.config['ELASTICSEARCH_URL'] else None
+    
     app.jinja_env.filters['markdown'] = markdown_filter
 
     with app.app_context():
         db.create_all()
 
     return app
-
-
-from app import models
