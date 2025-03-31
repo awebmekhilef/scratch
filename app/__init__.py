@@ -2,6 +2,7 @@ import firebase_admin
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
 from firebase_admin import credentials
@@ -9,6 +10,7 @@ from elasticsearch import Elasticsearch
 from app.filters import markdown_filter
 
 db = SQLAlchemy()
+migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please login to access this page'
@@ -20,6 +22,7 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     login.init_app(app)
     moment.init_app(app)
 
@@ -41,8 +44,5 @@ def create_app():
         if app.config['ELASTICSEARCH_URL'] else None
     
     app.jinja_env.filters['markdown'] = markdown_filter
-
-    with app.app_context():
-        db.create_all()
 
     return app

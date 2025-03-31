@@ -20,7 +20,8 @@ Ensure you have Python 3.8+ installed.
    pip install -r requirements.txt
    ```
 3. Configure environment variables. An example `.env.example` is provided
-4. Start the development server
+4. Run the database migration and start the development server
    ```
+   flask db upgrade
    flask run
    ```

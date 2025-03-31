@@ -18,6 +18,7 @@ email_validator==2.2.0
 firebase-admin==6.7.0
 Flask==3.1.0
 Flask-Login==0.6.3
+Flask-Migrate==4.1.0
 Flask-Moment==1.0.6
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
