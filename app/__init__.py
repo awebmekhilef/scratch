@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_moment import Moment
+from flask_mailman import Mail
 from firebase_admin import credentials
 from elasticsearch import Elasticsearch
 from app.filters import markdown_filter
@@ -15,6 +16,7 @@ login = LoginManager()
 login.login_view = 'auth.login'
 login.login_message = 'Please login to access this page'
 moment = Moment()
+mail = Mail()
 
 
 def create_app():
@@ -25,6 +27,7 @@ def create_app():
     migrate.init_app(app, db)
     login.init_app(app)
     moment.init_app(app)
+    mail.init_app(app)
 
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp)

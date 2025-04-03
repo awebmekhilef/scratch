@@ -7,7 +7,8 @@ from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.auth import bp
-from app.auth.forms import LoginForm, RegisterForm, UpdatePasswordForm, TwoFactorAuthForm, EmptyForm
+from app.auth.forms import LoginForm, RegisterForm, UpdatePasswordForm, ForgotPasswordForm, ResetPasswordForm, TwoFactorAuthForm, EmptyForm
+from app.auth.email import send_password_reset_email
 from app.models import User
 
 
@@ -115,3 +116,35 @@ def two_factor_auth_setup():
         'Pragma': 'no-cache',
         'Expires': '0'
     }
+
+
+@bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = db.session.scalar(db.select(User).where(User.email == form.email.data))
+        if user:
+            send_password_reset_email(user)
+        flash('A password reset link has been sent to your email address')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/forgot_password.html', form=form)
+
+
+@bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    user = User.verify_reset_password_token(token)
+    print(token)
+    print(user)
+    if not user:
+        return redirect(url_for('auth.login'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset')
+        return redirect(url_for('auth.login'))
+    return render_template('auth/reset_password.html', form=form)

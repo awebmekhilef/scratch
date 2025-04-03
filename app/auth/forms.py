@@ -37,6 +37,17 @@ class UpdatePasswordForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
+class ForgotPasswordForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Submit')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset password')
+
+
 class TwoFactorAuthForm(FlaskForm):
     token = StringField('OTP token', validators=[DataRequired(), Length(6, 6)])
     submit = SubmitField('Submit')

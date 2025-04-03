@@ -11,4 +11,7 @@ class Config:
     GOOGLE_APPLICATION_CREDENTIALS = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
     FIREBASE_STORAGE_BUCKET = os.environ.get('FIREBASE_STORAGE_BUCKET')
     ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
+    ADMINS = ['admin@scratch.io']
     RESULTS_PER_PAGE = 25
