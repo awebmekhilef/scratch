@@ -24,7 +24,11 @@ Ensure you have Python 3.8+ installed.
    ```
    aiosmtpd -n -c aiosmtpd.handlers.Debugging -l localhost:8025
    ```
-5. Run the database migration and start the development server
+5. Start the Redis Queue worker process
+   ```
+   rq worker scratch-tasks
+   ```
+6. Run the database migration and start the development server
    ```
    flask db upgrade
    flask run
