@@ -61,6 +61,22 @@ def settings():
     return render_template('settings_profile.html', form=form, active_page='profile')
 
 
+@bp.route('/settings/export-data')
+@login_required
+def export_data():
+    return render_template('settings_export_data.html', active_page='export_data')
+
+@bp.route('/request-data-export')
+@login_required
+def request_data_export():
+    if current_user.get_task_in_progress('export_data'):
+        flash('An export task is currently in progress')
+    else:
+        flash('Started data export...')
+        current_user.launch_task('export_data', 'Exporting data...')
+        db.session.commit()
+    return redirect(url_for('main.export_data'))
+
 @bp.route('/game/<id>', defaults={'slug': None})
 @bp.route('/game/<id>/<slug>')
 def game(id, slug):
@@ -195,7 +211,7 @@ def comment(game_id):
     return redirect(url_for('main.game', id=game_id, _anchor='comments'))
 
 
-@bp.route('/delete_comment/<id>', methods=['POST'])
+@bp.route('/delete-comment/<id>', methods=['POST'])
 @login_required
 def delete_comment(id):
     form = EmptyForm()

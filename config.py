@@ -14,4 +14,5 @@ class Config:
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
     ADMINS = ['admin@scratch.io']
+    REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
     RESULTS_PER_PAGE = 25

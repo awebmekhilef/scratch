@@ -1,5 +1,7 @@
 import pyotp
 import jwt
+import redis
+import rq
 from typing import Optional, List
 from datetime import datetime, timezone
 from time import time
@@ -69,6 +71,7 @@ class User(UserMixin, db.Model):
     otp_secret: Mapped[str] = mapped_column(String(32))
 
     games: WriteOnlyMapped['Game'] = relationship(back_populates='creator')
+    tasks: WriteOnlyMapped['Task'] = relationship(back_populates='user')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -102,6 +105,16 @@ class User(UserMixin, db.Model):
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
         return f'https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}'
+
+    def launch_task(self, name, description, *args, **kwargs):
+        rq_job = current_app.task_queue.enqueue(f'app.tasks.{name}', self.id, *args, **kwargs)
+        task = Task(id=rq_job.get_id(), name=name, description=description, user=self)
+        db.session.add(task)
+        return task
+
+    def get_task_in_progress(self, name):
+        query = self.tasks.select().where(Task.name == name, Task.complete == False)
+        return db.session.scalar(query)
 
     def __repr__(self):
         return f'<User \'{self.username}\'>'
@@ -190,3 +203,13 @@ class Comment(db.Model):
 
     game: Mapped[Game] = relationship(back_populates='comments')
     author: Mapped[User] = relationship()
+
+
+class Task(db.Model):
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), index=True)
+    description: Mapped[Optional[str]] = mapped_column(String(128))
+    user_id: Mapped[int] = mapped_column(ForeignKey(User.id))
+    complete: Mapped[bool] = mapped_column(default=False)
+
+    user: Mapped[User] = relationship(back_populates='tasks')

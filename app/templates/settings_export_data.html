@@ -1,0 +1,12 @@
+{% extends "settings.html" %}
+
+{% from "macros.html" import form_field %}
+
+{% block settings %}
+    <h1>
+        Data export
+    </h1>
+    <hr>
+    <p>The data export is processed asynchronously and will be sent to your registered email once it is complete.</p>
+    <a class="btn btn-primary" href="{{ url_for('main.request_data_export') }}" role="button">Request Data Export</a>
+{% endblock settings %}

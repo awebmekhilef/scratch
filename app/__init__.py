@@ -1,3 +1,4 @@
+import rq
 import firebase_admin
 from flask import Flask
 from config import Config
@@ -8,6 +9,7 @@ from flask_moment import Moment
 from flask_mailman import Mail
 from firebase_admin import credentials
 from elasticsearch import Elasticsearch
+from redis import Redis
 from app.filters import markdown_filter
 
 db = SQLAlchemy()
@@ -42,6 +44,9 @@ def create_app():
     firebase_admin.initialize_app(cred, {
         'storageBucket': app.config['FIREBASE_STORAGE_BUCKET']
     })
+
+    app.redis = Redis.from_url(app.config['REDIS_URL'])
+    app.task_queue = rq.Queue('scratch-tasks', connection=app.redis)
 
     app.elasticsearch = Elasticsearch(app.config['ELASTICSEARCH_URL']) \
         if app.config['ELASTICSEARCH_URL'] else None

@@ -1,0 +1,6 @@
+Dear {{ user.username }},
+
+Please find attached the data export that you requested.
+
+Sincerely,
+The Scratch Team
