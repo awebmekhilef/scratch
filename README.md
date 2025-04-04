@@ -2,7 +2,8 @@
 A video game storefront inspired by itch.io
 
 # Features
-- User authentication with 2FA support
+- User authentication with 2FA and email support
+- Execution of background tasks using task queues
 - Create and customise game pages (screenshots, uploads, markdown description)
 - Integrated web player for HTML5 games
 - Natural language searching using Elasticsearch
